@@ -1,0 +1,12 @@
+{
+  "slug": "a11y-interaction-trace",
+  "title": "A11y Interaction Trace",
+  "territory": "utilities",
+  "user": "A web developer or accessibility tester who needs a small reproducible record of keyboard focus, visible UI, and accessibility-tree changes for a broken interaction.",
+  "smallest_useful_product": "Browser extension that records explicitly started test sessions, captures keyboard/focus events, opt-in screenshots, and a narrowed accessibility snapshot, then exports a self-contained trace viewer.",
+  "success_measure": "A reviewer can reproduce a seeded focus-trap defect from an exported trace without a live screen share, and the trace records each keyboard action/focus target correctly.",
+  "artifact_class": "browser-extension",
+  "monetization": "free",
+  "constraints": "Default to local-only; mask typed text and sensitive fields; require visible recording state; scope snapshots to the tested tab and honor browser permission limits.",
+  "why_distinct": "It is a reproducibility handoff artifact, not another automated accessibility scanner."
+}
