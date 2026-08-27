@@ -1,0 +1,22 @@
+import { defineConfig } from 'wxt';
+
+export default defineConfig({
+  srcDir: '.',
+  outDir: '.output',
+  manifest: {
+    name: 'A11y Interaction Trace',
+    short_name: 'A11y Trace',
+    description: 'Record keyboard, focus, visible UI, and narrowed accessibility state locally.',
+    version: '1.0.0',
+    permissions: ['activeTab', 'storage', 'downloads'],
+    host_permissions: ['<all_urls>'],
+    action: { default_title: 'A11y Interaction Trace' },
+    icons: {
+      16: '/icon/16.png',
+      32: '/icon/32.png',
+      48: '/icon/48.png',
+      128: '/icon/128.png'
+    }
+  },
+  zip: { name: 'a11y-interaction-trace' }
+});

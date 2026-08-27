@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">A11y Interaction Trace mark</title>
+  <desc id="desc">A moss path links three square focus targets.</desc>
+  <rect width="64" height="64" fill="#1b1e1a"/>
+  <path d="M14 14h19v18h17v18H31" fill="none" stroke="#cbef45" stroke-width="5" stroke-linejoin="miter"/>
+  <rect x="9" y="9" width="10" height="10" fill="#f2f0e8" stroke="#cbef45" stroke-width="3"/>
+  <rect x="45" y="27" width="10" height="10" fill="#f2f0e8" stroke="#cbef45" stroke-width="3"/>
+  <rect x="26" y="45" width="10" height="10" fill="#f2f0e8" stroke="#cbef45" stroke-width="3"/>
+</svg>

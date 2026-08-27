@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>A11y Interaction Trace</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to controls</a>
+    <header class="mast">
+      <img src="/trace-mark.svg" alt="" width="32" height="32">
+      <div><span>A11Y / TRACE</span><small id="mode">READY</small></div>
+    </header>
+    <main id="main">
+      <h1>Capture the path,<br>not the person.</h1>
+      <p class="intro">Keyboard, focus, visible UI, and narrowed semantic state. One local evidence file.</p>
+
+      <section id="idle" aria-labelledby="idle-title">
+        <h2 id="idle-title">New trace</h2>
+        <label class="switch-row" for="screenshots">
+          <span><strong>Include screenshots</strong><small>Off by default. Captures only the tested tab.</small></span>
+          <input type="checkbox" id="screenshots" role="switch">
+        </label>
+        <p class="privacy-note"><strong>Private by design.</strong> Typed characters become “Character”; passwords and sensitive fields are always masked. Nothing is uploaded.</p>
+        <button class="primary" id="start" type="button"><span aria-hidden="true">●</span> Start on this tab</button>
+      </section>
+
+      <section id="recording" aria-labelledby="recording-title" hidden>
+        <div class="recording-heading"><span class="record-dot" aria-hidden="true"></span><h2 id="recording-title">Recording</h2><time id="elapsed">00:00</time></div>
+        <p>Use the page normally. The in-page recorder stays visible until you stop.</p>
+        <dl class="metrics"><div><dt>Events</dt><dd id="event-count">0</dd></div><div><dt>Screenshots</dt><dd id="shot-state">Off</dd></div></dl>
+        <button class="primary stop" id="stop" type="button">Stop recording</button>
+      </section>
+
+      <section id="complete" aria-labelledby="complete-title" hidden>
+        <h2 id="complete-title">Trace ready</h2>
+        <p id="summary">Your local session is ready to hand off.</p>
+        <button class="primary" id="export" type="button">Export offline viewer</button>
+        <button class="secondary" id="clear" type="button">Clear local trace</button>
+      </section>
+
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+      <a class="lab-link" href="https://a11y-interaction-trace.sociobot.in/lab/" target="_blank">Open the focus containment lab <span aria-hidden="true">↗</span></a>
+    </main>
+    <footer>LOCAL ONLY <span aria-hidden="true">/</span> SCHEMA 1</footer>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>
