@@ -3,6 +3,7 @@ import type { RuntimeMessage, TraceEvent, TraceSession } from '../src/lib/types'
 
 const STORAGE_KEY = 'traceSession';
 let writeQueue = Promise.resolve();
+let eventQueue: Promise<unknown> = Promise.resolve();
 let lastScreenshotAt = 0;
 
 async function getSession(): Promise<TraceSession | null> {
@@ -11,7 +12,7 @@ async function getSession(): Promise<TraceSession | null> {
 }
 
 function saveSession(session: TraceSession | null): Promise<void> {
-  writeQueue = writeQueue.then(async () => {
+  writeQueue = writeQueue.catch(() => undefined).then(async () => {
     if (session) await chrome.storage.local.set({ [STORAGE_KEY]: session });
     else await chrome.storage.local.remove(STORAGE_KEY);
   });
@@ -24,24 +25,52 @@ async function setBadge(recording: boolean) {
   await chrome.action.setTitle({ title: recording ? 'A11y Interaction Trace — recording' : 'A11y Interaction Trace' });
 }
 
-async function appendEvent(message: Extract<RuntimeMessage, { type: 'TRACE_EVENT' }>, sender: chrome.runtime.MessageSender) {
-  const session = await getSession();
-  if (!session || session.status !== 'recording' || sender.tab?.id !== session.tabId) return { ok: false };
-  const event: TraceEvent = { ...message.event, id: crypto.randomUUID(), at: Math.max(0, message.elapsed) };
-  if (session.screenshotsEnabled && message.requestScreenshot && Date.now() - lastScreenshotAt > 650) {
-    lastScreenshotAt = Date.now();
-    try {
-      event.screenshot = await chrome.tabs.captureVisibleTab(session.windowId, { format: 'jpeg', quality: 62 });
-    } catch (error) {
-      event.screenshotError = error instanceof Error ? error.message : 'Browser permission did not allow capture.';
-    }
+async function activateRecorder(tabId: number, startedAt: string) {
+  try {
+    await chrome.tabs.sendMessage(tabId, { type: 'TRACE_START', startedAt });
+  } catch {
+    await chrome.scripting.executeScript({ target: { tabId }, files: ['recorder.js'] });
+    await chrome.tabs.sendMessage(tabId, { type: 'TRACE_START', startedAt });
   }
-  session.events.push(event);
-  await saveSession(session);
-  return { ok: true };
+}
+
+function appendEvent(message: Extract<RuntimeMessage, { type: 'TRACE_EVENT' }>, sender: chrome.runtime.MessageSender) {
+  const task = eventQueue.then(async () => {
+    const session = await getSession();
+    if (!session || session.status !== 'recording' || sender.tab?.id !== session.tabId) return { ok: false };
+    const event: TraceEvent = { ...message.event, id: crypto.randomUUID(), at: Math.max(0, message.elapsed) };
+    const screenshotCount = session.events.filter(item => Boolean(item.screenshot)).length;
+    if (session.screenshotsEnabled && message.requestScreenshot && screenshotCount >= 12) {
+      event.screenshotError = 'Screenshot skipped after 12 captures to keep this local trace compact.';
+    } else if (session.screenshotsEnabled && message.requestScreenshot && Date.now() - lastScreenshotAt > 650) {
+      lastScreenshotAt = Date.now();
+      try {
+        await chrome.tabs.sendMessage(session.tabId, { type: 'TRACE_MASK_SENSITIVE' });
+        await new Promise(resolve => setTimeout(resolve, 40));
+        event.screenshot = await chrome.tabs.captureVisibleTab(session.windowId, { format: 'jpeg', quality: 62 });
+      } catch (error) {
+        event.screenshotError = error instanceof Error ? error.message : 'Browser permission did not allow capture.';
+      } finally {
+        await chrome.tabs.sendMessage(session.tabId, { type: 'TRACE_UNMASK_SENSITIVE' }).catch(() => undefined);
+      }
+    }
+    session.events.push(event);
+    try {
+      await saveSession(session);
+    } catch (error) {
+      if (!event.screenshot) throw error;
+      delete event.screenshot;
+      event.screenshotError = 'Screenshot omitted because browser-local storage is full. Export or clear the current trace.';
+      await saveSession(session);
+    }
+    return { ok: true };
+  });
+  eventQueue = task.catch(() => undefined);
+  return task;
 }
 
 async function stopSession() {
+  await eventQueue;
   const session = await getSession();
   if (!session || session.status !== 'recording') return session;
   session.status = 'stopped';
@@ -62,6 +91,21 @@ function toDataUrl(html: string): string {
 
 export default defineBackground(() => {
   void getSession().then(session => setBadge(session?.status === 'recording'));
+
+  chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+    if (changeInfo.status !== 'complete') return;
+    void getSession().then(session => {
+      if (session?.status === 'recording' && session.tabId === tabId) {
+        void activateRecorder(tabId, session.startedAt).catch(() => stopSession());
+      }
+    });
+  });
+
+  chrome.tabs.onRemoved.addListener(tabId => {
+    void getSession().then(session => {
+      if (session?.status === 'recording' && session.tabId === tabId) void stopSession();
+    });
+  });
 
   chrome.runtime.onMessage.addListener((message: RuntimeMessage, sender, sendResponse) => {
     void (async () => {
@@ -85,7 +129,15 @@ export default defineBackground(() => {
         };
         await saveSession(session);
         await setBadge(true);
-        await chrome.tabs.sendMessage(tab.id, { type: 'TRACE_START', startedAt }).catch(() => { throw new Error('This page cannot be recorded. Reload it after installing the extension, then try again.'); });
+        try {
+          await activateRecorder(tab.id, startedAt);
+        } catch {
+          session.status = 'stopped';
+          session.endedAt = new Date().toISOString();
+          await saveSession(session);
+          await setBadge(false);
+          throw new Error('This page cannot be recorded. Open a regular http or https page, then try again.');
+        }
         return { session };
       }
       if (message.type === 'TRACE_EVENT') return appendEvent(message, sender);

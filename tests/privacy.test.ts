@@ -1,13 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { cleanText, safeKeyLabel } from '../src/lib/privacy';
 
-const key = (value: string, extra = {}) => ({ key: value, ctrlKey: false, altKey: false, metaKey: false, ...extra }) as KeyboardEvent;
+const key = (value: string, extra = {}) => ({ key: value, shiftKey: false, ctrlKey: false, altKey: false, metaKey: false, ...extra }) as KeyboardEvent;
 
 describe('keyboard privacy', () => {
   it('preserves navigation keys needed to reproduce a failure', () => {
     expect(safeKeyLabel(key('Tab'))).toBe('Tab');
     expect(safeKeyLabel(key('ArrowDown'))).toBe('ArrowDown');
     expect(safeKeyLabel(key(' '))).toBe('Space');
+    expect(safeKeyLabel(key('Tab', { shiftKey: true }))).toBe('Shift+Tab');
   });
 
   it('masks printable input and keeps only shortcut shape', () => {

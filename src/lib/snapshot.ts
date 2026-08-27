@@ -31,6 +31,9 @@ function labelText(element: Element): string {
     if (element instanceof HTMLInputElement && ['button', 'submit', 'reset'].includes(element.type)) return cleanText(element.value);
   }
   if (element instanceof HTMLImageElement) return cleanText(element.alt);
+  if (element.matches('input, textarea, [contenteditable], [role="textbox"], [role="searchbox"], [role="combobox"]')) {
+    return cleanText(element.getAttribute('title') || element.getAttribute('placeholder'));
+  }
   return cleanText(element.textContent || element.getAttribute('title') || element.getAttribute('placeholder'));
 }
 
@@ -79,7 +82,7 @@ export function nodeSummary(element: Element | null): TraceNode | undefined {
 export function captureSnapshot(focus: Element | null = document.activeElement): TraceSnapshot {
   const scope = focus?.closest('[role="dialog"], dialog, form, nav, main, section') ?? document.body;
   const candidates = Array.from(scope.querySelectorAll('button, a[href], input, select, textarea, [tabindex], [role]'))
-    .filter(element => !element.closest('#__a11y_trace_recorder__'));
+    .filter(element => !element.closest('#__a11y_trace_recorder__') && element.getClientRects().length > 0 && element.getAttribute('aria-hidden') !== 'true');
   if (focus && !candidates.includes(focus)) candidates.unshift(focus);
   const focusIndex = candidates.indexOf(focus as Element);
   const start = Math.max(0, focusIndex < 0 ? 0 : focusIndex - 5);

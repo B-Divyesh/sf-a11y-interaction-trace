@@ -2,13 +2,11 @@ import { captureSnapshot, nodeSummary } from '../src/lib/snapshot';
 import { isSensitiveElement, safeKeyLabel } from '../src/lib/privacy';
 import type { RuntimeMessage, TraceEvent } from '../src/lib/types';
 
-export default defineContentScript({
-  matches: ['<all_urls>'],
-  runAt: 'document_idle',
-  main() {
+export default defineUnlistedScript(() => {
     let recording = false;
     let started = 0;
-    let timer: number | undefined;
+    type PendingKey = { timer: number; event: Omit<TraceEvent, 'id' | 'at'> };
+    const pendingKeys: PendingKey[] = [];
     let dock: HTMLElement | null = null;
     let clock: number | undefined;
 
@@ -58,27 +56,53 @@ export default defineContentScript({
 
     function stop() {
       recording = false;
-      if (timer) window.clearTimeout(timer);
+      for (const pending of pendingKeys) window.clearTimeout(pending.timer);
+      pendingKeys.length = 0;
       if (clock) window.clearInterval(clock);
       dock?.remove();
       dock = null;
     }
 
+    function maskSensitiveFields() {
+      document.getElementById('__a11y_trace_masks__')?.remove();
+      const layer = document.createElement('div');
+      layer.id = '__a11y_trace_masks__';
+      layer.setAttribute('aria-hidden', 'true');
+      for (const element of document.querySelectorAll('input[type="password"], [data-private], input[autocomplete*="cc-"], input[autocomplete*="password"], input[autocomplete="one-time-code"]')) {
+        const rect = element.getBoundingClientRect();
+        if (!rect.width || !rect.height) continue;
+        const mask = document.createElement('span');
+        Object.assign(mask.style, { position: 'fixed', zIndex: '2147483646', left: `${rect.left}px`, top: `${rect.top}px`, width: `${rect.width}px`, height: `${rect.height}px`, background: '#1b1e1a', color: '#f2f0e8', border: '2px solid #cbef45', font: '700 12px/1 system-ui', display: 'grid', placeItems: 'center' });
+        mask.textContent = 'MASKED';
+        layer.append(mask);
+      }
+      document.documentElement.append(layer);
+    }
+
     document.addEventListener('keydown', event => {
       if (!recording || event.target instanceof Element && event.target.closest('#__a11y_trace_recorder__')) return;
-      if (timer) window.clearTimeout(timer);
+      if (['Shift', 'Control', 'Alt', 'Meta'].includes(event.key)) return;
       const label = safeKeyLabel(event, isSensitiveElement(event.target as Element));
       const modifiers = [event.shiftKey && 'Shift', event.ctrlKey && 'Ctrl', event.altKey && 'Alt', event.metaKey && 'Meta'].filter(Boolean) as string[];
-      timer = window.setTimeout(() => {
-        timer = undefined;
+      const pending = { timer: 0, event: { kind: 'keyboard', action: label, modifiers } } satisfies PendingKey;
+      pending.timer = window.setTimeout(() => {
+        const index = pendingKeys.indexOf(pending);
+        if (index >= 0) pendingKeys.splice(index, 1);
         const focus = nodeSummary(document.activeElement);
-        emit({ kind: 'keyboard', action: label, modifiers, focus, snapshot: captureSnapshot() }, true);
+        emit({ ...pending.event, focus, snapshot: captureSnapshot() }, true);
       }, 0);
+      pendingKeys.push(pending);
     }, true);
 
     document.addEventListener('focusin', event => {
       if (!recording || event.target instanceof Element && event.target.closest('#__a11y_trace_recorder__')) return;
-      if (timer) return;
+      const pending = pendingKeys.shift();
+      if (pending) {
+        window.clearTimeout(pending.timer);
+        const focus = nodeSummary(event.target as Element);
+        emit({ ...pending.event, focus, snapshot: captureSnapshot(event.target as Element) }, true);
+        return;
+      }
       const focus = nodeSummary(event.target as Element);
       emit({ kind: 'focus', action: 'Focus changed', focus, snapshot: captureSnapshot(event.target as Element) }, true);
     }, true);
@@ -86,6 +110,8 @@ export default defineContentScript({
     chrome.runtime.onMessage.addListener((request: { type: string; startedAt?: string }, _sender, sendResponse) => {
       if (request.type === 'TRACE_START') { start(request.startedAt); sendResponse({ ok: true }); }
       if (request.type === 'TRACE_STOP') { stop(); sendResponse({ ok: true }); }
+      if (request.type === 'TRACE_MASK_SENSITIVE') { maskSensitiveFields(); sendResponse({ ok: true }); }
+      if (request.type === 'TRACE_UNMASK_SENSITIVE') { document.getElementById('__a11y_trace_masks__')?.remove(); sendResponse({ ok: true }); }
       return false;
     });
 
@@ -93,5 +119,4 @@ export default defineContentScript({
       const state = response as { recording?: boolean; startedAt?: string } | undefined;
       if (state?.recording) start(state.startedAt);
     });
-  }
 });

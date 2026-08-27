@@ -13,7 +13,8 @@ opener.addEventListener('click', () => {
   result.textContent = 'Dialog opened. Focus is on Project name.';
 });
 
-dialog.addEventListener('keydown', event => {
+document.addEventListener('keydown', event => {
+  if (!dialog.open) return;
   if (event.key === 'Escape') {
     event.preventDefault();
     dialog.close('escape');

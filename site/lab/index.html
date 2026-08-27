@@ -1,1 +1,113 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="A safe, seeded focus containment defect for testing A11y Interaction Trace."><title>Focus containment lab — A11y Interaction Trace</title><link rel="icon" href="/trace-mark.svg"><link rel="stylesheet" href="/style.css"></head><body><a class="skip" href="#main">Skip to main content</a><header class="site-header"><div class="shell nav"><a class="brand" href="/"><img src="/trace-mark.svg" alt="" width="36" height="36"><span>A11Y INTERACTION TRACE</span></a><nav aria-label="Main navigation"><a href="/">Product</a><a href="/privacy/">Privacy</a><a class="button" href="/downloads/a11y-interaction-trace.zip" download>Download .zip</a></nav></div></header><main id="main"><header class="shell page-hero"><p class="eyebrow">Seeded defect / safe exit: Escape</p><h1>Focus containment lab.</h1><p>Use this deliberately flawed dialog to produce a known trace. It never blocks Escape.</p></header><div class="shell lab-layout"><section><p class="eyebrow">Reproduction recipe</p><ol><li>Start A11y Interaction Trace on this tab.</li><li>Activate <strong>Open quick edit</strong>.</li><li>With focus on “Project name,” press <kbd>Shift</kbd> + <kbd>Tab</kbd>.</li><li>Observe that focus escapes to “Background help.”</li><li>Press <kbd>Escape</kbd> to close safely, then export.</li></ol><div class="callout"><strong>Expected:</strong> reverse-Tab should wrap to Cancel.<br><strong>Actual:</strong> it lands behind the dialog on Background help.</div><p id="result" class="result" role="status" aria-live="polite"></p></section><section class="lab-panel" aria-labelledby="sandbox-title"><p class="eyebrow">Test surface</p><h2 id="sandbox-title">Account preferences</h2><div class="sandbox"><a id="background-help" href="#help">Background help</a><p>This link should be unavailable while the dialog behaves modally.</p><button id="open-dialog" type="button" aria-haspopup="dialog">Open quick edit</button></div></section></div><dialog id="quick-edit" class="demo-dialog" aria-labelledby="dialog-title" aria-describedby="dialog-desc"><form method="dialog"><p class="eyebrow">Quick edit</p><h2 id="dialog-title">Edit project</h2><p id="dialog-desc">This dialog contains an intentional reverse-Tab containment defect.</p><label for="project-name"><strong>Project name</strong></label><input id="project-name" name="project-name" value="Concrete audit"><footer><button value="cancel">Cancel</button><button value="save">Save change</button></footer></form></dialog></main><footer class="site-footer" id="help"><div class="shell footer-grid"><p>Lab defect is intentional and isolated to this page.</p><nav class="footer-links" aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav></div></footer><script type="module" src="/lab/lab.ts"></script></body></html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="A safe, seeded focus containment defect for testing A11y Interaction Trace."
+    />
+    <title>Focus containment lab — A11y Interaction Trace</title>
+    <link rel="icon" href="/trace-mark.svg" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to main content</a>
+    <header class="site-header">
+      <div class="shell nav">
+        <a class="brand" href="/"
+          ><img src="/trace-mark.svg" alt="" width="36" height="36" /><span
+            >A11Y INTERACTION TRACE</span
+          ></a
+        >
+        <nav aria-label="Main navigation">
+          <a href="/">Product</a><a href="/privacy/">Privacy</a
+          ><a
+            class="button"
+            href="/downloads/a11y-interaction-trace.zip"
+            download
+            >Download .zip</a
+          >
+        </nav>
+      </div>
+    </header>
+    <main id="main">
+      <header class="shell page-hero">
+        <p class="eyebrow">Seeded defect / safe exit: Escape</p>
+        <h1>Focus containment lab.</h1>
+        <p>
+          Use this deliberately flawed dialog to produce a known trace. It never
+          blocks Escape.
+        </p>
+      </header>
+      <div class="shell lab-layout">
+        <section>
+          <p class="eyebrow">Reproduction recipe</p>
+          <ol>
+            <li>Start A11y Interaction Trace on this tab.</li>
+            <li>Activate <strong>Open quick edit</strong>.</li>
+            <li>
+              With focus on “Project name,” press <kbd>Shift</kbd> +
+              <kbd>Tab</kbd>.
+            </li>
+            <li>Observe that focus escapes to “Background help.”</li>
+            <li>Press <kbd>Escape</kbd> to close safely, then export.</li>
+          </ol>
+          <div class="callout">
+            <strong>Expected:</strong> reverse-Tab should wrap to Cancel.<br /><strong
+              >Actual:</strong
+            >
+            it lands behind the dialog on Background help.
+          </div>
+          <p id="result" class="result" role="status" aria-live="polite"></p>
+        </section>
+        <section class="lab-panel" aria-labelledby="sandbox-title">
+          <p class="eyebrow">Test surface</p>
+          <h2 id="sandbox-title">Account preferences</h2>
+          <div class="sandbox">
+            <a id="background-help" href="#help">Background help</a>
+            <p>
+              This link should be unavailable while the dialog behaves modally.
+            </p>
+            <button id="open-dialog" type="button" aria-haspopup="dialog">
+              Open quick edit
+            </button>
+          </div>
+        </section>
+      </div>
+      <dialog
+        id="quick-edit"
+        class="demo-dialog"
+        aria-labelledby="dialog-title"
+        aria-describedby="dialog-desc"
+      >
+        <form method="dialog">
+          <p class="eyebrow">Quick edit</p>
+          <h2 id="dialog-title">Edit project</h2>
+          <p id="dialog-desc">
+            This dialog contains an intentional reverse-Tab containment defect.
+          </p>
+          <label for="project-name"><strong>Project name</strong></label
+          ><input
+            id="project-name"
+            name="project-name"
+            value="Concrete audit"
+          />
+          <footer>
+            <button value="cancel">Cancel</button
+            ><button value="save">Save change</button>
+          </footer>
+        </form>
+      </dialog>
+    </main>
+    <footer class="site-footer" id="help">
+      <div class="shell footer-grid">
+        <p>Lab defect is intentional and isolated to this page.</p>
+        <nav class="footer-links" aria-label="Legal">
+          <a href="/privacy/">Privacy</a><a href="/terms/">Terms</a>
+        </nav>
+      </div>
+    </footer>
+    <script type="module" src="/lab/lab.ts"></script>
+  </body>
+</html>

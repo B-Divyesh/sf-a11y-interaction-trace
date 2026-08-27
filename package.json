@@ -8,8 +8,8 @@
     "dev": "wxt",
     "dev:site": "vite --config vite.site.config.ts",
     "build:extension": "wxt build && wxt zip",
-    "build:site": "vite build --config vite.site.config.ts && node scripts/stage-download.mjs",
-    "build": "npm run build:extension && npm run build:site",
+    "build:site": "npm run build:extension && vite build --config vite.site.config.ts && node scripts/stage-download.mjs",
+    "build": "npm run build:site",
     "test": "vitest run",
     "test:a11y": "playwright test",
     "check": "tsc --noEmit"
@@ -24,6 +24,6 @@
     "typescript": "^5.8.3",
     "vite": "^6.3.5",
     "vitest": "^3.2.2",
-    "wxt": "^0.20.6"
+    "wxt": "^0.21.4"
   }
 }

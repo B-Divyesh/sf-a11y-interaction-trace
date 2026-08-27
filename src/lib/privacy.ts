@@ -12,12 +12,12 @@ export function isSensitiveElement(element: Element | null): boolean {
   return ['cc-number', 'cc-csc', 'current-password', 'new-password', 'one-time-code'].some(value => autocomplete.includes(value));
 }
 
-export function safeKeyLabel(event: Pick<KeyboardEvent, 'key' | 'ctrlKey' | 'metaKey' | 'altKey'>, sensitive = false): string {
+export function safeKeyLabel(event: Pick<KeyboardEvent, 'key' | 'shiftKey' | 'ctrlKey' | 'metaKey' | 'altKey'>, sensitive = false): string {
   const key = event.key === ' ' || event.key === 'Spacebar' ? 'Space' : event.key;
   const safe = SAFE_KEYS.has(event.key) || event.key.startsWith('Arrow') ? key : 'Character';
   if (sensitive && safe === 'Character') return 'Masked character';
-  const modifiers = [event.ctrlKey && 'Ctrl', event.altKey && 'Alt', event.metaKey && 'Meta'].filter(Boolean);
-  return modifiers.length && !['Control', 'Alt', 'Meta'].includes(key)
+  const modifiers = [event.shiftKey && 'Shift', event.ctrlKey && 'Ctrl', event.altKey && 'Alt', event.metaKey && 'Meta'].filter(Boolean);
+  return modifiers.length && !['Shift', 'Control', 'Alt', 'Meta'].includes(key)
     ? `${modifiers.join('+')}+${safe}`
     : safe;
 }

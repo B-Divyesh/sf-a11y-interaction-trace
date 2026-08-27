@@ -25,3 +25,12 @@ test('seeded focus defect is reproducible and Escape restores focus', async ({ p
   await page.keyboard.press('Escape');
   await expect(page.getByRole('button', { name: 'Open quick edit' })).toBeFocused();
 });
+
+test('the visited landing page remains available offline', async ({ page, context }) => {
+  await page.goto('/');
+  await page.evaluate(() => navigator.serviceWorker.ready);
+  await page.reload();
+  await context.setOffline(true);
+  await page.reload();
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Make focus failures visible');
+});
