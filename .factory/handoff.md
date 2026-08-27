@@ -37,6 +37,7 @@ The deploy command is exactly `npm run build`. Static output is `dist/site/`, wi
 - Production site payload: 1.8 KB JavaScript total, 9.8 KB CSS, 25 KB mobile hero / 77 KB desktop hero.
 - Extension output: 41.8 KB unpacked; distributable zip 24.8 KB.
 - `npm audit --omit=dev`: 0 vulnerabilities.
+- Fresh `git archive` checkout: `npm ci` and the exact `npm run build` command passed; `dist/site/index.html` and the downloadable zip were both produced.
 - Visual inspection completed at 1440 × 1000 and 390 × 844 with no horizontal overflow or console errors.
 - Final manifest requests `activeTab`, `scripting`, `storage`, and `downloads`; it has no broad host permission.
 
