@@ -1,4 +1,4 @@
-# Copy audit — polish round 4
+# Copy audit — polish round 5
 
 Audited 2026-08-28. Counts use whitespace-delimited words, so hyphenated and quoted terms count as one word. All landing-page sentences are 22 words or fewer, and none uses a banned marketing word. The demo entry and reset promises map to `demo-entry` and `demo-reset` claim tests. `tests/copy-audit.test.ts` checks every numeric row in this document.
 
@@ -51,7 +51,7 @@ Primary action: “Try it with sample data.” Secondary action: “Download ext
 | It shows a checkout dialog and four ordered events without an install. | 12 | Pass; `demo-entry` claim. |
 | Reset demo restores the original four-event sample. | 7 | Pass; `demo-reset` claim. |
 | Start for real removes all demo data. | 7 | Pass; `demo-isolation` claim. |
-| Record keyboard focus failures and export a local trace for bug reports. | 12 | Pass; `trace-export-content` and `local-no-upload` claims. |
+| Record keyboard focus failures and export one local trace for bug reports. | 12 | Pass; `trace-export-content` and `local-no-upload` claims. |
 
 Fragments, headings, navigation labels, and button labels were checked separately. No flagged term remains.
 

@@ -104,11 +104,44 @@ test('static host maps unknown paths to the designed 404 response', async () => 
   expect(page404).toContain('Return to product');
 });
 
-test('@claim:offline-site the visited landing page remains available offline', async ({ page, context }) => {
-  await page.goto('/');
-  await page.evaluate(() => navigator.serviceWorker.ready);
-  await page.reload();
-  await context.setOffline(true);
-  await page.reload();
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Record keyboard focus failures');
+test('@claim:offline-site every visited public page and the interactive demo remain available offline', async ({ browser }, testInfo) => {
+  const routes = [
+    { path: '/', heading: 'Record keyboard focus failures for your team.' },
+    { path: '/demo/', heading: 'See where keyboard focus escaped.' },
+    { path: '/lab/', heading: 'Reproduce a focus escape.' },
+    { path: '/privacy/', heading: 'Privacy stays on your machine.' },
+    { path: '/terms/', heading: 'Use the trace responsibly.' }
+  ];
+  const baseURL = String(testInfo.project.use.baseURL);
+  const allowedOrigin = new URL(baseURL).origin;
+
+  for (const route of routes) {
+    const context = await browser.newContext({ baseURL, viewport: { width: 390, height: 844 } });
+    const page = await context.newPage();
+    const requests: string[] = [];
+    page.on('request', request => requests.push(request.url()));
+
+    await page.goto(route.path);
+    await page.evaluate(() => navigator.serviceWorker.ready);
+    const originalDemoState = route.path === '/demo/'
+      ? await page.evaluate(() => localStorage.getItem('demo:a11y-interaction-trace:state'))
+      : null;
+
+    await context.setOffline(true);
+    await page.reload();
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(route.heading);
+
+    if (route.path === '/demo/') {
+      expect(originalDemoState).toBeTruthy();
+      await page.getByRole('button', { name: 'Replay sample' }).click();
+      await expect(page.locator('#demo-status')).toContainText('Replay complete');
+      expect(await page.evaluate(() => localStorage.getItem('demo:a11y-interaction-trace:state'))).not.toBe(originalDemoState);
+      await page.getByRole('button', { name: 'Reset demo' }).click();
+      await expect(page.locator('#demo-status')).toContainText('Demo reset to the original four events');
+      expect(await page.evaluate(() => localStorage.getItem('demo:a11y-interaction-trace:state'))).toBe(originalDemoState);
+    }
+
+    expect(requests.every(request => new URL(request).origin === allowedOrigin), `${route.path} made a third-party request`).toBe(true);
+    await context.close();
+  }
 });

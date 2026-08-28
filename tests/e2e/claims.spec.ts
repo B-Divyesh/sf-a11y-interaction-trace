@@ -72,12 +72,36 @@ test('@claim:trace-export-content sample export contains actions, focus, page de
   expect(download.suggestedFilename()).toBe('a11y-trace-sample-checkout.html');
 });
 
-test('@claim:chronological-order sample events and exported events stay in timestamp order', async ({ page }) => {
+test('@claim:chronological-order visible, stored, and downloaded production events keep the same action and timestamp order', async ({ page }) => {
   await page.goto('/demo/');
-  await expect(page.locator('#demo-events h3')).toHaveText(['Recording started', 'Enter', 'Shift + Tab', 'Escape']);
-  const times = await page.locator('#demo-events .trace-top code').allTextContents();
-  expect(times).toEqual(['+0.00 s', '+0.24 s', '+1.42 s', '+2.18 s']);
-  expect(sample.events.map(event => event.at)).toEqual([0, 240, 1420, 2180]);
+  const visible = await page.locator('#demo-events .trace-step').evaluateAll(steps => steps.map(step => {
+    const action = step.querySelector('h3')?.textContent?.trim().replace(/\s*\+\s*/g, '+') ?? '';
+    const timestamp = step.querySelector('code')?.textContent?.trim() ?? '';
+    return { action, at: Math.round(Number.parseFloat(timestamp.replace(/[+s]/g, '')) * 1000) };
+  }));
+
+  const stored = await page.evaluate(() => {
+    const state = JSON.parse(localStorage.getItem('demo:a11y-interaction-trace:state') ?? '{}') as { trace?: TraceSession };
+    return state.trace?.events.map(event => ({ action: event.action, at: event.at })) ?? [];
+  });
+
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Download sample trace' }).click();
+  const download = await downloadPromise;
+  const html = await readFile((await download.path())!, 'utf8');
+  const serialized = html.match(/<script type="application\/json" id="trace-data">([\s\S]*?)<\/script>/)?.[1];
+  expect(serialized).toBeTruthy();
+  const downloaded = (JSON.parse(serialized!) as TraceSession).events.map(event => ({ action: event.action, at: event.at }));
+
+  const expected = [
+    { action: 'Recording started', at: 0 },
+    { action: 'Enter', at: 240 },
+    { action: 'Shift+Tab', at: 1420 },
+    { action: 'Escape', at: 2180 }
+  ];
+  expect(visible).toEqual(expected);
+  expect(stored).toEqual(visible);
+  expect(downloaded).toEqual(visible);
 });
 
 test('@claim:explicit-recording recorder starts only on request and exposes both recording indicators', async () => {

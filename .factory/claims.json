@@ -32,7 +32,7 @@
     "claim": "Trace events stay in the order they happened.",
     "where": "landing and demo timeline",
     "test": "npm run test:claims -- --grep @claim:chronological-order",
-    "sandbox": "fresh seeded demo; compare visible and serialized event order and timestamps"
+    "sandbox": "fresh seeded demo; compare complete action/timestamp pairs in the visible timeline, demo-namespaced state, and downloaded production trace-data"
   },
   {
     "id": "seeded-focus-defect",
@@ -81,7 +81,7 @@
     "claim": "Visited site pages remain available offline.",
     "where": "site offline status",
     "test": "npm run test:claims -- --grep @claim:offline-site",
-    "sandbox": "fresh browser; prime service worker, go offline, reload landing, and assert the main heading"
+    "sandbox": "fresh context per route; visit /, /demo/, /lab/, /privacy/, and /terms/ once, go offline, reload each h1, operate demo replay/reset, and reject third-party requests"
   },
   {
     "id": "local-no-upload",
