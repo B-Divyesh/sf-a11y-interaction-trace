@@ -9,8 +9,10 @@
   <body>
     <main>
       <h1>Screenshot privacy fixture</h1>
-      <label for="password-like">Password</label>
-      <input id="password-like" type="text" aria-label="Password" value="SENSITIVE-ARIA-PASSWORD-8472" />
+      <div class="field"><label for="password-like">Password</label><input id="password-like" type="password" value="SENSITIVE-PASSWORD-8472" /></div>
+      <div class="field"><label for="payment-like">Card number</label><input id="payment-like" autocomplete="cc-number" value="4111111111111111" /></div>
+      <div class="field"><label for="otp-like">One-time code</label><input id="otp-like" autocomplete="one-time-code" value="739204" /></div>
+      <div class="field"><label for="private-like">Private account note</label><input id="private-like" data-private value="SENSITIVE-PRIVATE-NOTE-8472" /></div>
     </main>
     <script type="module" src="./fixture.ts"></script>
   </body>

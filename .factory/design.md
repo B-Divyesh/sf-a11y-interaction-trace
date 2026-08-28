@@ -70,5 +70,11 @@ One generated hero illustration provides the product world; authored SVG marks a
 
 - `assets/src/trace-slab.png` and derived site formats: generated for this product on 2026-08-27 with the Param Factory Azure image deployment via `/opt/fleet/lib/gen-image.sh`, using the prompt above. Original generated work; no third-party asset or brand input.
 - `public/trace-mark.svg`: hand-authored for this product from geometric primitives; MIT with the repository.
+- `public/social-card.jpg`: 1200 × 630 center crop composed from the generated `trace-slab.png` source on 2026-08-28 with ImageMagick.
+- `public/apple-touch-icon.png`: 180 × 180 derivative of the hand-authored product icon, exported locally on 2026-08-28.
 
 The footer discloses generated imagery. No remote fonts, scripts, imagery, or icon sets are loaded.
+
+## Demo treatment
+
+The sample trace extends the workbench metaphor into a two-column evidence bench. The tested dialog stays pinned beside its chronological moss seam on wide screens, then stacks before the trace on phones. A dark concrete banner marks the isolated sample without changing the product palette. Replay moves each evidence slab six pixels from its chronological origin; reduced-motion mode changes state without movement.

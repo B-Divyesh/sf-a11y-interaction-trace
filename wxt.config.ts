@@ -7,7 +7,7 @@ export default defineConfig({
   manifest: {
     name: 'A11y Interaction Trace',
     short_name: 'A11y Trace',
-    description: 'Record keyboard, focus, visible UI, and narrowed accessibility state locally.',
+    description: 'Record keyboard actions, focus changes, visible UI, and nearby controls locally.',
     version: '1.0.0',
     permissions: ['activeTab', 'storage', 'downloads', 'scripting'],
     action: { default_title: 'A11y Interaction Trace' },

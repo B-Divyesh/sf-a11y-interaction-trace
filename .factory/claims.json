@@ -1,0 +1,121 @@
+[
+  {
+    "id": "demo-isolation",
+    "claim": "The sample uses a demo-only storage namespace; reset and exit do not change real data.",
+    "where": "landing action, demo banner, README, demo.md",
+    "test": "npm run test:claims -- --grep @claim:demo-isolation",
+    "sandbox": "fresh browser context; seed real sentinels, enter ?demo=1, replay, reset, and compare all non-demo keys"
+  },
+  {
+    "id": "trace-export-content",
+    "claim": "The sample exports one HTML trace with keyboard actions, focus, page details, and nearby controls.",
+    "where": "landing, demo export preview, README",
+    "test": "npm run test:claims -- --grep @claim:trace-export-content",
+    "sandbox": "fresh demo; download the generated file and inspect its complete content"
+  },
+  {
+    "id": "chronological-order",
+    "claim": "Trace events stay in the order they happened.",
+    "where": "landing and demo timeline",
+    "test": "npm run test:claims -- --grep @claim:chronological-order",
+    "sandbox": "fresh seeded demo; compare visible and serialized event order and timestamps"
+  },
+  {
+    "id": "seeded-focus-defect",
+    "claim": "Shift+Tab moves focus behind the sample dialog and Escape restores it to the opener.",
+    "where": "landing, demo, lab, README, demo.md",
+    "test": "npm run test:claims -- --grep @claim:seeded-focus-defect",
+    "sandbox": "fresh lab page; operate the real dialog with the keyboard and assert focus after each key"
+  },
+  {
+    "id": "explicit-recording",
+    "claim": "Recording starts only on request and shows a toolbar badge and recorder bar.",
+    "where": "landing and README",
+    "test": "npm run test:claims -- --grep @claim:explicit-recording",
+    "sandbox": "built extension source; assert the start-message boundary and both indicator paths"
+  },
+  {
+    "id": "key-privacy",
+    "claim": "Typed characters become Character while navigation keys remain identifiable.",
+    "where": "landing, popup, privacy, README",
+    "test": "npm run test:claims -- --grep @claim:key-privacy",
+    "sandbox": "fixed keyboard sequence through the production key-label function"
+  },
+  {
+    "id": "sensitive-mask",
+    "claim": "Sensitive field values are excluded from structured trace data and optional screenshots.",
+    "where": "landing, popup, privacy, README",
+    "test": "npm run test:claims -- --grep @claim:sensitive-mask",
+    "sandbox": "visible ARIA-labelled password fixture; mask, capture JPEG, build trace, and inspect pixels and text"
+  },
+  {
+    "id": "screenshot-boundary",
+    "claim": "Screenshots start off and, when enabled, use visible-tab capture with a 12-image cap.",
+    "where": "landing, popup, privacy, README",
+    "test": "npm run test:claims -- --grep @claim:screenshot-boundary",
+    "sandbox": "built popup and background; assert unchecked default, visible-tab API, cap, and no desktop capture"
+  },
+  {
+    "id": "offline-export",
+    "claim": "Exported trace files open without a network connection.",
+    "where": "landing, demo, exported file, README",
+    "test": "npm run test:claims -- --grep @claim:offline-export",
+    "sandbox": "fresh offline browser context; render generated trace and assert fields with zero requests"
+  },
+  {
+    "id": "offline-site",
+    "claim": "Visited site pages remain available offline.",
+    "where": "site offline status",
+    "test": "npm run test:claims -- --grep @claim:offline-site",
+    "sandbox": "fresh browser; prime service worker, go offline, reload landing, and assert the main heading"
+  },
+  {
+    "id": "local-no-upload",
+    "claim": "The extension stores traces in browser storage and has no account, analytics, tracker, API, or upload service.",
+    "where": "landing, popup, privacy, README",
+    "test": "npm run test:claims -- --grep @claim:local-no-upload",
+    "sandbox": "capture the full demo request set and scan extension runtime entrypoints for remote transfer code"
+  },
+  {
+    "id": "snapshot-scope",
+    "claim": "Nearby control snapshots contain selected DOM details, not a browser or operating-system accessibility tree.",
+    "where": "landing, demo, terms, README, exported file",
+    "test": "npm run test:claims -- --grep @claim:snapshot-scope",
+    "sandbox": "fresh demo and generated export; assert the exact scope label and limitation"
+  },
+  {
+    "id": "manifest-permissions",
+    "claim": "The manifest requests activeTab, scripting, storage, and downloads, with no host permissions.",
+    "where": "privacy and README",
+    "test": "npm run test:claims -- --grep @claim:manifest-permissions",
+    "sandbox": "clean production build; parse manifest and compare the exact permission set"
+  },
+  {
+    "id": "chromium-package",
+    "claim": "Version 1 is packaged for Chromium browsers.",
+    "where": "landing and README",
+    "test": "npm run test:claims -- --grep @claim:chromium-package",
+    "sandbox": "clean production build; parse the emitted Chromium MV3 manifest, action, and service worker"
+  },
+  {
+    "id": "packaged-build",
+    "claim": "The production build creates the unpacked extension, packaged ZIP, deployable site, and public download.",
+    "where": "README",
+    "test": "npm run test:claims -- --grep @claim:packaged-build",
+    "sandbox": "clean production build; assert all four artifacts exist and are non-empty"
+  },
+  {
+    "id": "free-mit",
+    "claim": "The product is free and its source uses the MIT License.",
+    "where": "landing, terms, README",
+    "test": "npm run test:claims -- --grep @claim:free-mit",
+    "sandbox": "fresh site and repository; assert visible free fact, MIT grant, and no billing integration"
+  },
+  {
+    "id": "provenance",
+    "claim": "The hero is generated original imagery and the interface mark is hand-authored for this product.",
+    "where": "landing footer, README, design.md",
+    "test": "npm run test:claims -- --grep @claim:provenance",
+    "sandbox": "clean repository; assert source artwork, prompt record, authored SVG, and provenance section"
+  }
+]

@@ -1,5 +1,6 @@
 :root { font: 18px/1.5 system-ui, sans-serif; color: #17200e; background: #fff; }
 body { margin: 48px; }
 main { width: 420px; }
-label { display: block; font-weight: 700; margin: 24px 0 8px; }
+.field { margin-top: 18px; }
+label { display: block; font-weight: 700; margin: 0 0 8px; }
 input { width: 360px; height: 56px; padding: 8px 12px; border: 2px solid #17200e; color: #d30000; background: #fff; font: 700 18px/1 ui-monospace, monospace; }

@@ -1,4 +1,4 @@
-export {};
+import '../main';
 
 const dialog = document.querySelector<HTMLDialogElement>('#quick-edit')!;
 const opener = document.querySelector<HTMLButtonElement>('#open-dialog')!;

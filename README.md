@@ -1,93 +1,93 @@
 # A11y Interaction Trace
 
-A privacy-first Chrome/Edge extension for turning a broken keyboard interaction into a compact, reproducible handoff. It records sanitized keyboard actions, focus targets, selected DOM-derived accessibility state, and optional screenshots, then exports one self-contained HTML viewer.
+This Chromium extension records keyboard actions, focus changes, nearby controls, and optional screenshots. It exports one HTML trace file.
 
-Live site: <https://a11y-interaction-trace.sociobot.in>
+For web developers, accessibility testers, QA engineers, and issue triagers. Use it when a screen recording does not show enough.
 
-## Who it is for
+- Live site: <https://a11y-interaction-trace.sociobot.in>
+- Sample trace: <https://a11y-interaction-trace.sociobot.in/?demo=1>
 
-Web developers, accessibility testers, QA engineers, and issue triagers who need more evidence than a screen recording but do not want to upload a session to a third-party service.
+## Try the sample trace
 
-## What v1 records
+Open the sample link once. It shows a checkout dialog and four ordered events without an install.
 
-- Keyboard actions, preserving navigation keys and shortcut shape while replacing printable input with `Character`
-- The focused element’s role, accessible name, stable selector, and relevant ARIA state
-- A narrow semantic snapshot of nearby interactive controls
-- Page URL/title, viewport, timing, and browser metadata
-- Visible-tab JPEG screenshots only when explicitly enabled for that session
+The banner identifies demo mode. **Reset demo** restores the original sample, and **Start for real** removes all demo data.
 
-The browser does not expose its full platform accessibility tree to a normal cross-browser extension. The UI and export therefore call this a **narrowed semantic snapshot** rather than overstating the result.
+Demo data uses local-storage keys beginning with `demo:a11y-interaction-trace:`. The demo never reads or changes other storage keys.
 
-## Install the packaged extension
+See [`.factory/demo.md`](.factory/demo.md) for the exact seed and isolation checks.
 
-1. Run `npm ci && npm run build`, or download the release zip from the site.
+## What version 1 records
+
+- Keyboard actions, with typed characters replaced by `Character`
+- Focus role, name, stable selector, and relevant state
+- A nearby control snapshot with selected DOM details
+- Page URL, title, viewport, timing, and browser details
+- Visible-tab JPEG screenshots when you enable them
+
+The snapshot is not the browser or operating-system accessibility tree.
+
+## Install the extension
+
+1. Run `npm ci && npm run build`, or download the extension ZIP from the live site.
 2. Unzip `dist/site/downloads/a11y-interaction-trace.zip`.
-3. Open `chrome://extensions` or `edge://extensions`.
+3. Open your Chromium browser’s Extensions page.
 4. Enable Developer mode and choose **Load unpacked**.
 5. Select the extracted directory and pin the extension.
 
 ## Record a trace
 
-1. Open the page under test. The included `/lab/` route has a safe, seeded focus-containment defect.
-2. Open the extension. Screenshots are off by default; opt in only when the visible page is safe to capture.
-3. Select **Start on this tab** and reproduce the issue with the keyboard.
-4. Stop from the always-visible in-page dock or the extension popup.
-5. Select **Export offline viewer** and attach the resulting HTML file to the issue.
-6. Use **Clear local trace** when finished.
+1. Open the page under test. The included `/lab/` page has a deliberately broken dialog with an Escape key exit.
+2. Open the extension. Screenshots are off until you enable them for that recording.
+3. Select **Start on this tab**, then reproduce the issue with the keyboard.
+4. Stop from the recorder bar or the extension popup.
+5. Select **Export trace file**, then attach the HTML file to the issue.
+6. Select **Clear local trace** when finished.
 
 ## Privacy and permissions
 
-All session data stays in `chrome.storage.local`; there is no account, API, analytics, or upload. The extension requests:
+The current trace stays in browser extension storage (`chrome.storage.local`). The extension has no account, analytics, tracker, API, or upload service.
 
-- `activeTab` and `scripting` to inject the recorder only into the tab where the toolbar action was invoked
-- `storage` for the current/local trace
-- `downloads` for the exported viewer
+Its manifest requests four permissions:
 
-There is no `<all_urls>` host permission. Recording cannot run on browser-internal pages. Screenshots are rate-limited and capped at 12 per trace to limit local storage growth. See [`site/privacy/index.html`](site/privacy/index.html) for the full policy.
+- `activeTab` and `scripting` run the recorder in the tab you choose.
+- `storage` keeps the current trace in the browser.
+- `downloads` saves the trace file.
 
-## Development
+The manifest has no host permissions. Sensitive field values are excluded before optional screenshots are captured.
 
-Requirements: Node.js 20+ and npm.
+## Develop and verify
+
+The commands below use Node.js and npm.
 
 ```bash
 npm ci
-npm run dev          # WXT extension development
-npm run dev:site     # landing site at localhost:5173
+npm run dev          # extension development
+npm run dev:site     # local site at http://localhost:5173
 npm run check        # TypeScript
-npm test             # unit tests
-npm run test:a11y    # Playwright + axe (install Chromium first; see below)
-npm run build        # exact production build command
+npm test             # unit and static tests
+npm run test:claims  # one test for every public claim
+npm run test:a11y    # browser, accessibility, privacy, and offline tests
+npm run build        # production extension and site
 ```
 
-`npm run build` produces:
+The production build creates the unpacked extension, packaged ZIP, deployable site, and public download. Claim `packaged-build` verifies every artifact.
 
-- `.output/chrome-mv3/` — unpacked MV3 extension
-- `.output/a11y-interaction-trace-1.0.0-chrome.zip` — packaged extension
-- `dist/site/index.html` — deploy root
-- `dist/site/downloads/a11y-interaction-trace.zip` — public download
+## Deploy
 
-To run browser checks for the first time:
+The static deployment root is `dist/site`. Build it with `npm ci && npm test && npm run build:site`.
 
-```bash
-npx playwright install chromium
-npm run test:a11y
-```
+The factory deploys that directory with `/opt/fleet/lib/deploy-static.sh a11y-interaction-trace dist/site`. Infrastructure changes happen outside this repository.
 
-## Architecture
-
-- WXT + TypeScript, Manifest V3
-- An on-demand isolated recorder injected with `activeTab`
-- A background service worker for ordered persistence, screenshot capture, badge state, and export
-- A dependency-free offline HTML viewer embedded into each export
-- Vite static site, privacy/terms pages, test lab, and service-worker shell cache
+After deployment, check `/`, `/demo/`, `/lab/`, `/privacy/`, `/terms/`, and an unknown path. The unknown path must return the styled 404 response.
 
 ## Limits
 
-- Chromium browsers only in v1.
-- Snapshots approximate accessible names/roles from the DOM; they are not the browser/OS accessibility tree.
-- Cross-origin navigation ends the effective `activeTab` grant. Stop the current trace and start another on the new origin.
-- Shadow DOM and cross-origin iframe internals are outside the recorder’s current scope.
+- Version 1 is packaged for Chromium browsers.
+- Nearby control snapshots contain selected DOM details.
+- Browser permissions and page security policies can limit capture.
+- Review each trace file before sharing it.
 
-## License
+## License and visual assets
 
-MIT. Generated hero provenance and the complete visual system are documented in [`.factory/design.md`](.factory/design.md).
+The source uses the MIT License. Generated hero provenance and the visual system are documented in [`.factory/design.md`](.factory/design.md).

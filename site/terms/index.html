@@ -5,25 +5,29 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="description" content="Terms for A11y Interaction Trace." />
     <title>Terms — A11y Interaction Trace</title>
-    <link rel="icon" href="/trace-mark.svg" />
+    <link rel="canonical" href="https://a11y-interaction-trace.sociobot.in/terms/" /><meta name="theme-color" content="#f2f0e8" />
+    <meta property="og:type" content="website" /><meta property="og:title" content="Terms — A11y Interaction Trace" /><meta property="og:description" content="Terms for using A11y Interaction Trace and sharing trace files responsibly." /><meta property="og:url" content="https://a11y-interaction-trace.sociobot.in/terms/" /><meta property="og:image" content="https://a11y-interaction-trace.sociobot.in/social-card.jpg" />
+    <meta name="twitter:card" content="summary_large_image" /><meta name="twitter:title" content="Terms — A11y Interaction Trace" /><meta name="twitter:description" content="Terms for using A11y Interaction Trace and sharing trace files responsibly." /><meta name="twitter:image" content="https://a11y-interaction-trace.sociobot.in/social-card.jpg" />
+    <link rel="icon" href="/trace-mark.svg" type="image/svg+xml" /><link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
     <a class="skip" href="#main">Skip to main content</a>
+    <div id="route-status" class="sr-only" aria-live="polite"></div>
     <header class="site-header">
       <div class="shell nav">
-        <a class="brand" href="/"
+        <a class="brand" href="/" aria-label="A11y Interaction Trace home"
           ><img src="/trace-mark.svg" alt="" width="36" height="36" /><span
             >A11Y INTERACTION TRACE</span
           ></a
         >
         <nav aria-label="Main navigation">
-          <a href="/">Product</a><a href="/lab/">Test lab</a
+          <a href="/?demo=1">Demo</a><a href="/lab/">Test lab</a><a href="/privacy/">Privacy</a
           ><a
-            class="button"
+            class="button compact"
             href="/downloads/a11y-interaction-trace.zip"
             download
-            >Download .zip</a
+            >Download ZIP</a
           >
         </nav>
       </div>
@@ -31,56 +35,40 @@
     <main id="main">
       <header class="shell page-hero">
         <p class="eyebrow">Terms / effective 27 August 2026</p>
-        <h1>A small tool, used responsibly.</h1>
+        <h1 tabindex="-1">Use the trace responsibly.</h1>
         <p>
-          These terms cover the free A11y Interaction Trace extension and
-          website.
+          These terms cover the free A11y Interaction Trace extension and website.
         </p>
       </header>
       <article class="shell prose">
         <h2>License and use</h2>
         <p>
-          The software is provided under the MIT License. You may use, copy,
-          modify, and redistribute it subject to that license. Use the recorder
-          only on pages and data you are authorized to inspect.
+          The software uses the MIT License. You may use, copy, modify, and redistribute it under that license.
+        </p><p>Use the recorder only on pages and data you are authorized to inspect.
         </p>
         <h2>Your traces</h2>
         <p>
-          You control the traces you record and export. Review files before
-          sharing them; accessible names, page titles, URLs, and opted-in
-          screenshots may contain information from the tested page. You are
-          responsible for obtaining permission and choosing recipients.
+          You control the traces you record and export. Review each file before sharing it.
+        </p><p>Accessible names, page titles, URLs, and optional screenshots may contain information from the tested page.</p><p>You are responsible for obtaining permission and choosing recipients.
         </p>
         <h2>No automated conformance claim</h2>
         <p>
-          The product captures interaction evidence. It is not an automated
-          accessibility scanner, full accessibility-tree inspector, legal
-          certification, or remediation service. Its semantic snapshots are
-          narrowed DOM-derived context and can differ from assistive technology
-          output.
+          The product captures interaction evidence. It is not a scanner, legal certification, or remediation service.
+        </p><p>Nearby control snapshots contain selected DOM details. They can differ from assistive technology output.
         </p>
         <h2>No warranty</h2>
         <p>
-          The tool is provided “as is,” without warranty of any kind, as stated
-          in the MIT License. Browser permissions and page security policies can
-          limit recording or screenshot capture.
+          The tool is provided “as is,” without warranty, as stated in the MIT License.
+        </p><p>Browser permissions and page security policies can limit recording or screenshot capture.
         </p>
         <h2>Availability and changes</h2>
         <p>
-          The free service and downloadable software may change or be
-          discontinued. Updated terms will be published here with a revised
-          effective date.
+          The website and downloadable software may change or be discontinued. Updated terms appear here with a revised effective date.
         </p>
       </article>
     </main>
     <footer class="site-footer">
-      <div class="shell footer-grid">
-        <p>© 2026 Sociobot · MIT licensed</p>
-        <nav class="footer-links" aria-label="Legal">
-          <a href="/privacy/">Privacy</a
-          ><a href="/terms/" aria-current="page">Terms</a>
-        </nav>
-      </div>
+      <div class="shell footer-grid"><div><a class="brand" href="/" aria-label="A11y Interaction Trace home"><img src="/trace-mark.svg" alt="" width="36" height="36" /><span>A11Y INTERACTION TRACE</span></a><p class="disclosure">Record keyboard actions and focus changes for an accessibility bug report. Version 1.0.0 · Built by Param Factory.</p></div><nav class="footer-links" aria-label="Footer"><a href="/?demo=1">Demo</a><a href="/privacy/">Privacy</a><a href="/terms/" aria-current="page">Terms</a><a href="https://github.com/B-Divyesh/sf-a11y-interaction-trace">Source (external)</a></nav></div>
     </footer>
     <script type="module" src="/main.ts"></script>
   </body>

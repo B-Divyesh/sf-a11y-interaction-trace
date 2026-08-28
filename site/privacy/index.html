@@ -3,30 +3,31 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta
-      name="description"
-      content="Privacy policy for A11y Interaction Trace."
-    />
+    <meta name="description" content="How A11y Interaction Trace stores traces locally, masks typed values, and avoids accounts, analytics, and uploads." />
     <title>Privacy — A11y Interaction Trace</title>
-    <link rel="icon" href="/trace-mark.svg" />
+    <link rel="canonical" href="https://a11y-interaction-trace.sociobot.in/privacy/" />
+    <meta name="theme-color" content="#f2f0e8" />
+    <meta property="og:type" content="website" /><meta property="og:title" content="Privacy — A11y Interaction Trace" /><meta property="og:description" content="How A11y Interaction Trace stores traces locally, masks typed values, and avoids accounts, analytics, and uploads." /><meta property="og:url" content="https://a11y-interaction-trace.sociobot.in/privacy/" /><meta property="og:image" content="https://a11y-interaction-trace.sociobot.in/social-card.jpg" />
+    <meta name="twitter:card" content="summary_large_image" /><meta name="twitter:title" content="Privacy — A11y Interaction Trace" /><meta name="twitter:description" content="How A11y Interaction Trace stores traces locally and masks typed values." /><meta name="twitter:image" content="https://a11y-interaction-trace.sociobot.in/social-card.jpg" />
+    <link rel="icon" href="/trace-mark.svg" type="image/svg+xml" /><link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
     <a class="skip" href="#main">Skip to main content</a>
+    <div id="route-status" class="sr-only" aria-live="polite"></div>
     <header class="site-header">
       <div class="shell nav">
-        <a class="brand" href="/"
+        <a class="brand" href="/" aria-label="A11y Interaction Trace home"
           ><img src="/trace-mark.svg" alt="" width="36" height="36" /><span
             >A11Y INTERACTION TRACE</span
           ></a
         >
         <nav aria-label="Main navigation">
-          <a href="/">Product</a><a href="/lab/">Test lab</a
-          ><a
-            class="button"
+          <a href="/?demo=1">Demo</a><a href="/lab/">Test lab</a><a href="/privacy/" aria-current="page">Privacy</a><a
+            class="button compact"
             href="/downloads/a11y-interaction-trace.zip"
             download
-            >Download .zip</a
+            >Download ZIP</a
           >
         </nav>
       </div>
@@ -34,69 +35,54 @@
     <main id="main">
       <header class="shell page-hero">
         <p class="eyebrow">Policy / effective 27 August 2026</p>
-        <h1>Privacy stays on your machine.</h1>
+        <h1 tabindex="-1">Privacy stays on your machine.</h1>
         <p class="lede">
-          A11y Interaction Trace is local-first and has no server-side session
-          storage.
+          The extension stores traces in your browser. It has no account or upload service.
         </p>
       </header>
       <article class="shell prose">
         <div class="callout">
-          <strong>Short version:</strong> we do not receive your traces. The
-          extension does not send analytics, screenshots, page contents, or
-          interaction data anywhere.
+          <strong>Short version:</strong> we do not receive your traces. The extension sends no interaction data, screenshots, or analytics.
         </div>
         <h2>What the extension records</h2>
         <p>
-          Only after you explicitly start a session, the extension records
-          sanitized keyboard actions, focus targets, selected DOM-derived
-          accessibility properties, the tested page URL and title, viewport
-          metadata, and—if you opt in—screenshots of the visible tested tab.
+          Recording begins only after you select Start. It saves keyboard actions, focus targets, page details, and nearby control snapshots.
+        </p><p>
+          Screenshots are optional. When enabled, capture uses the visible tested tab.
         </p>
         <h2>Masking</h2>
         <p>
           Printable keys are recorded as “Character,” not their value. Password,
-          payment, one-time-code, and developer-marked private fields are
-          labeled sensitive and never include their values. Accessible names can
-          still contain page-provided text, so review a trace before sharing it.
+          payment, one-time-code, and author-marked private fields exclude their values. Accessible names can still contain page text.
+        </p><p>
+          Review a trace before sharing it.
         </p>
         <h2>Storage and deletion</h2>
         <p>
-          The active and latest session are stored in your browser’s local
-          extension storage. Export creates a standalone HTML file at a location
-          you choose. “Clear local trace” removes extension storage; exported
-          files remain under your control.
+          The current trace stays in browser extension storage. Export creates one HTML trace file at a location you choose.
+        </p><p>
+          “Clear local trace” removes extension storage. Files already exported remain under your control.
         </p>
         <h2>Network and third parties</h2>
         <p>
-          The extension has no telemetry, account system, cloud API,
-          advertising, or third-party runtime. The public website also uses no
-          analytics or tracking. Browser stores or source hosts may apply their
-          own policies when you download the extension.
+          The extension has no telemetry, account, cloud API, advertising, or third-party runtime. The public site uses no analytics or tracking.
+        </p><p>
+          Browser stores or source hosts may apply their own policies when you download the extension.
         </p>
         <h2>Permissions</h2>
         <p>
-          <code>activeTab</code> and site access let the extension observe the
-          tab you choose to test. <code>storage</code> keeps the current trace
-          locally. <code>downloads</code> saves the exported viewer. Screenshot
-          capture is off unless you enable it for that session.
+          <code>activeTab</code> and <code>scripting</code> run the recorder in the tab you choose. <code>storage</code> keeps the current trace locally.
+        </p><p>
+          <code>downloads</code> saves the trace file. Screenshot capture is off until you enable it for that recording.
         </p>
         <h2>Contact and changes</h2>
         <p>
-          Questions and policy changes are tracked in the project’s public
-          source repository. Material changes will update the effective date
-          above.
+          Questions and policy changes are tracked in the public source repository. Material changes update the effective date above.
         </p>
       </article>
     </main>
     <footer class="site-footer">
-      <div class="shell footer-grid">
-        <p>© 2026 Sociobot · MIT licensed</p>
-        <nav class="footer-links" aria-label="Legal">
-          <a href="/privacy/" aria-current="page">Privacy</a
-          ><a href="/terms/">Terms</a>
-        </nav>
-      </div>
+      <div class="shell footer-grid"><div><a class="brand" href="/" aria-label="A11y Interaction Trace home"><img src="/trace-mark.svg" alt="" width="36" height="36" /><span>A11Y INTERACTION TRACE</span></a><p class="disclosure">Record keyboard actions and focus changes for an accessibility bug report. Version 1.0.0 · Built by Param Factory.</p></div><nav class="footer-links" aria-label="Footer"><a href="/?demo=1">Demo</a><a href="/privacy/" aria-current="page">Privacy</a><a href="/terms/">Terms</a><a href="https://github.com/B-Divyesh/sf-a11y-interaction-trace">Source (external)</a></nav></div>
     </footer>
     <script type="module" src="/main.ts"></script>
   </body>

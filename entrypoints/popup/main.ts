@@ -52,7 +52,7 @@ async function act(button: HTMLButtonElement, message: RuntimeMessage, busyLabel
   try {
     const result = await send(message);
     render(result.session);
-    status.textContent = message.type === 'EXPORT_SESSION' ? 'Saved. Share the HTML file with your reviewer.' : '';
+    status.textContent = message.type === 'EXPORT_SESSION' ? 'Saved. Share the HTML trace file with your reviewer.' : '';
   } catch (error) {
     status.textContent = error instanceof Error ? error.message : 'The action could not be completed. Try again.';
   } finally {
@@ -62,7 +62,7 @@ async function act(button: HTMLButtonElement, message: RuntimeMessage, busyLabel
 
 $('#start').addEventListener('click', () => void act($('#start') as HTMLButtonElement, { type: 'START_SESSION', screenshotsEnabled: ($('#screenshots') as HTMLInputElement).checked }, 'Starting…'));
 $('#stop').addEventListener('click', () => void act($('#stop') as HTMLButtonElement, { type: 'STOP_SESSION' }, 'Stopping…'));
-$('#export').addEventListener('click', () => void act($('#export') as HTMLButtonElement, { type: 'EXPORT_SESSION' }, 'Preparing viewer…'));
+$('#export').addEventListener('click', () => void act($('#export') as HTMLButtonElement, { type: 'EXPORT_SESSION' }, 'Preparing trace file…'));
 $('#clear').addEventListener('click', () => {
   if (!session || confirm(`Clear the trace for “${session.title}”? This cannot be undone.`)) void act($('#clear') as HTMLButtonElement, { type: 'CLEAR_SESSION' }, 'Clearing…');
 });

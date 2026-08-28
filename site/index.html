@@ -3,254 +3,84 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta
-      name="description"
-      content="Record keyboard, focus, screenshots, and narrowed accessibility state locally, then export one offline evidence file."
-    />
-    <title>A11y Interaction Trace — local keyboard and focus evidence</title>
-    <link rel="icon" href="/trace-mark.svg" />
+    <meta name="description" content="Record keyboard actions and focus changes, then export one trace file for an accessibility bug report." />
+    <title>A11y Interaction Trace — record keyboard focus bugs</title>
+    <link rel="canonical" href="https://a11y-interaction-trace.sociobot.in/" />
+    <meta name="theme-color" content="#f2f0e8" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="A11y Interaction Trace — record keyboard focus bugs" />
+    <meta property="og:description" content="Record keyboard actions and focus changes, then export one trace file for an accessibility bug report." />
+    <meta property="og:url" content="https://a11y-interaction-trace.sociobot.in/" />
+    <meta property="og:image" content="https://a11y-interaction-trace.sociobot.in/social-card.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="A11y Interaction Trace — record keyboard focus bugs" />
+    <meta name="twitter:description" content="Record keyboard actions and focus changes, then export one trace file for an accessibility bug report." />
+    <meta name="twitter:image" content="https://a11y-interaction-trace.sociobot.in/social-card.jpg" />
+    <link rel="icon" href="/trace-mark.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
     <a class="skip" href="#main">Skip to main content</a>
-    <p id="offline" class="offline" role="status" hidden>
-      You’re offline. The page is cached; downloads may need a connection.
-    </p>
+    <p id="offline" class="offline" role="status" hidden>You’re offline. The cached pages still work. Downloads may need a connection.</p>
+    <div id="route-status" class="sr-only" aria-live="polite"></div>
     <header class="site-header">
       <div class="shell nav">
-        <a class="brand" href="/"
-          ><img src="/trace-mark.svg" alt="" width="36" height="36" /><span
-            >A11Y INTERACTION TRACE</span
-          ></a
-        >
+        <a class="brand" href="/" aria-label="A11y Interaction Trace home"><img src="/trace-mark.svg" alt="" width="36" height="36" /><span>A11Y INTERACTION TRACE</span></a>
         <nav aria-label="Main navigation">
-          <a href="#how">How it works</a><a href="/lab/">Test lab</a
-          ><a
-            class="button"
-            href="/downloads/a11y-interaction-trace.zip"
-            download
-            >Download .zip</a
-          >
+          <a href="/?demo=1">Demo</a><a href="/lab/">Test lab</a><a href="/privacy/">Privacy</a>
+          <a class="button compact" href="/downloads/a11y-interaction-trace.zip" download>Download ZIP</a>
         </nav>
       </div>
     </header>
     <main id="main">
       <section class="shell hero">
-        <div>
-          <p class="eyebrow">Local interaction evidence / MV3</p>
-          <h1>Make focus failures visible.</h1>
-          <p class="lede">
-            Record the keyboard path, focused control, visible page, and
-            narrowed semantic state—then hand off one offline HTML trace instead
-            of another “can you reproduce?” thread.
-          </p>
+        <div class="hero-copy">
+          <p class="eyebrow">Keyboard and focus evidence</p>
+          <h1 tabindex="-1">Record keyboard focus failures for your team.</h1>
+          <p class="lede">For web developers and accessibility testers who need reproducible keyboard evidence without uploading a recording.</p>
           <div class="hero-actions">
-            <a
-              class="button acid"
-              href="/downloads/a11y-interaction-trace.zip"
-              download
-              >Download extension <span aria-hidden="true">↓</span></a
-            ><a class="button ghost" href="#install">Install instructions</a>
+            <a class="button acid" href="/?demo=1">Try it with sample data</a>
+            <a class="button ghost" href="/downloads/a11y-interaction-trace.zip" download>Download extension ZIP</a>
           </div>
-          <p class="microcopy">FREE · CHROME / EDGE · NO ACCOUNT · NO UPLOAD</p>
+          <p class="action-note">Opens a seeded dialog and sample trace. Nothing is saved to your real data.</p>
+          <ul class="hero-facts" aria-label="Product facts"><li>Free.</li><li>Packaged for Chromium browsers.</li><li>Stores traces only in your browser.</li></ul>
         </div>
         <figure class="hero-visual">
-          <picture
-            ><source
-              media="(max-width:720px)"
-              srcset="/assets/trace-slab-720.webp" />
-            <img
-              src="/assets/trace-slab.webp"
-              alt="Abstract concrete testing slab with a moss path connecting inset focus targets"
-              width="1200"
-              height="800"
-              fetchpriority="high"
-              decoding="async"
-          /></picture>
+          <picture><source media="(max-width:720px)" srcset="/assets/trace-slab-720.webp" /><img src="/assets/trace-slab.webp" alt="" width="1200" height="800" fetchpriority="high" decoding="async" /></picture>
           <figcaption class="figure-label">EVIDENCE PATH / 01—04</figcaption>
         </figure>
       </section>
       <div class="strip">
-        <ul class="shell strip-list">
-          <li><span>01</span> Explicitly start</li>
-          <li><span>02</span> Reproduce with keys</li>
-          <li><span>03</span> Stop visibly</li>
-          <li><span>04</span> Export one file</li>
-        </ul>
+        <ol class="shell strip-list"><li><span>01</span> Start the recording</li><li><span>02</span> Reproduce with keys</li><li><span>03</span> Stop from the recorder bar</li><li><span>04</span> Export one trace file</li></ol>
       </div>
       <section class="section shell" id="how">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">One timeline, four signals</p>
-            <h2>The missing middle of a bug report.</h2>
-          </div>
-          <p>
-            Automated audits find rules. Screen recordings show pixels. A11y
-            Interaction Trace records the human interaction between them, in the
-            order it happened.
-          </p>
-        </div>
+        <div class="section-head"><div><p class="eyebrow">Keys, focus, page, controls</p><h2>Record what changed after each key.</h2></div><p>This trace pairs each keyboard action with its next focus target. Events stay in the order they happened.</p></div>
         <div class="trace-grid">
-          <aside class="trace-legend">
-            <p class="eyebrow">Example trace</p>
-            <h3>Focus containment failure</h3>
-            <p>Three keystrokes show exactly when focus leaves a dialog.</p>
-            <a href="/lab/">Reproduce this seeded defect →</a>
-          </aside>
+          <aside class="trace-legend"><p class="eyebrow">Example trace</p><h3>Focus leaves a dialog</h3><p>Three keyboard actions show when focus moves behind the dialog.</p><a class="touch-link" href="/?demo=1">Open the sample trace →</a></aside>
           <ol class="trace-list">
-            <li class="trace-step">
-              <div class="trace-top">
-                <h3>Enter</h3>
-                <code>+0.00 s</code>
-              </div>
-              <div class="focus-proof">
-                <strong>Focus</strong> <code>button</code> · Open quick edit
-                <div class="chips">
-                  <span class="chip">expanded:false</span>
-                </div>
-              </div>
-            </li>
-            <li class="trace-step">
-              <div class="trace-top">
-                <h3>Shift + Tab</h3>
-                <code>+1.42 s</code>
-              </div>
-              <div class="focus-proof">
-                <strong>Focus</strong> <code>link</code> · Background help
-                <div class="chips">
-                  <span class="chip">outside dialog</span
-                  ><span class="chip">visible</span>
-                </div>
-              </div>
-            </li>
-            <li class="trace-step">
-              <div class="trace-top">
-                <h3>Escape</h3>
-                <code>+2.18 s</code>
-              </div>
-              <div class="focus-proof">
-                <strong>Focus</strong> <code>button</code> · Open quick edit
-                <div class="chips"><span class="chip">dialog closed</span></div>
-              </div>
-            </li>
+            <li class="trace-step"><div class="trace-top"><h3>Enter</h3><code>+0.00 s</code></div><div class="focus-proof"><strong>Focus</strong> <code>textbox</code> · Project name<div class="chips"><span class="chip">inside dialog</span></div></div></li>
+            <li class="trace-step"><div class="trace-top"><h3>Shift + Tab</h3><code>+1.42 s</code></div><div class="focus-proof"><strong>Focus</strong> <code>link</code> · Background help<div class="chips"><span class="chip">outside dialog</span><span class="chip">visible</span></div></div></li>
+            <li class="trace-step"><div class="trace-top"><h3>Escape</h3><code>+2.18 s</code></div><div class="focus-proof"><strong>Focus</strong> <code>button</code> · Open quick edit<div class="chips"><span class="chip">dialog closed</span></div></div></li>
           </ol>
         </div>
       </section>
       <section class="section concrete-section">
         <div class="shell">
-          <div class="section-head">
-            <div>
-              <p class="eyebrow">Built for handoff</p>
-              <h2>Evidence, not surveillance.</h2>
-            </div>
-            <p>
-              The recorder only runs after you start it. A toolbar badge and
-              page dock stay visible. Stop from either place.
-            </p>
-          </div>
+          <div class="section-head"><div><p class="eyebrow">Capture boundaries</p><h2>Record only when you choose.</h2></div><p>Recording starts when you select Start. The toolbar badge and recorder bar show when capture is active.</p></div>
           <div class="principles">
-            <article class="principle">
-              <span class="number">01</span>
-              <h3>Words stay private</h3>
-              <p>
-                Printable keys become “Character.” Password and payment fields
-                are marked sensitive; values never enter the trace.
-              </p>
-            </article>
-            <article class="principle">
-              <span class="number">02</span>
-              <h3>Pixels are opt-in</h3>
-              <p>
-                Screenshots start off. When enabled, the extension captures only
-                the visible tested tab—not your desktop or other tabs.
-              </p>
-            </article>
-            <article class="principle">
-              <span class="number">03</span>
-              <h3>The file explains itself</h3>
-              <p>
-                The exported viewer includes timing, focus, role/name/state
-                context, and honest scope notes. It needs no hosted app.
-              </p>
-            </article>
+            <article class="principle"><span class="number">01</span><h3>Typed words stay private</h3><p>Printable keys become “Character.” Sensitive field values do not enter the trace.</p></article>
+            <article class="principle"><span class="number">02</span><h3>Screenshots are optional</h3><p>Screenshots start off. When enabled, capture uses the visible tested tab.</p></article>
+            <article class="principle"><span class="number">03</span><h3>Open the trace file offline</h3><p>The exported file includes timing, focus, role, name, state, and scope notes.</p></article>
           </div>
         </div>
       </section>
-      <section class="section shell">
-        <div class="privacy-slab">
-          <blockquote>
-            “Small enough to attach. Specific enough to act on.”
-          </blockquote>
-          <ul class="privacy-list">
-            <li>
-              Everything stays in browser-local storage until you clear it.
-            </li>
-            <li>No analytics, trackers, account, or third-party runtime.</li>
-            <li>
-              Works offline after installation; exports open offline anywhere.
-            </li>
-            <li>
-              Narrow snapshots are labeled—not passed off as a full OS
-              accessibility tree.
-            </li>
-          </ul>
-        </div>
-      </section>
-      <section class="section concrete-section" id="install">
-        <div class="shell">
-          <div class="section-head">
-            <div>
-              <p class="eyebrow">Install unpacked / v1</p>
-              <h2>From zip to first trace.</h2>
-            </div>
-            <p>
-              Download and unzip. In Chrome or Edge, open the Extensions page,
-              enable Developer mode, choose “Load unpacked,” and select the
-              extracted folder. Pin the moss-path icon, open your test page, and
-              press Start.
-            </p>
-          </div>
-        </div>
-      </section>
-      <section class="cta">
-        <div class="shell">
-          <div>
-            <h2>Reproduce it. Record it. Hand it off.</h2>
-            <p>
-              One purpose-built local utility for the gap between an
-              accessibility failure and a fix.
-            </p>
-          </div>
-          <a
-            class="button"
-            href="/downloads/a11y-interaction-trace.zip"
-            download
-            >Download v1 .zip</a
-          >
-        </div>
-      </section>
+      <section class="section shell"><div class="privacy-slab"><h2>Keep the trace on your machine.</h2><ul class="privacy-list"><li>The extension stores traces in browser extension storage.</li><li>The extension has no account, analytics, tracker, or upload service.</li><li>Exported trace files open without a network connection.</li><li>Nearby control snapshots are selected DOM details, not an operating-system accessibility tree.</li></ul></div></section>
+      <section class="section concrete-section" id="install"><div class="shell"><div class="section-head"><div><p class="eyebrow">Install version 1 manually</p><h2>Install the extension ZIP.</h2></div><div><p>Download and unzip the extension. Open your browser’s Extensions page and enable Developer mode.</p><p>Choose “Load unpacked,” select the extracted folder, then pin the moss-path icon.</p></div></div></div></section>
+      <section class="cta"><div class="shell"><div><h2>Reproduce the focus bug. Record it. Share the trace.</h2><p>Use one local extension to capture an accessibility failure for a bug report.</p></div><a class="button" href="/downloads/a11y-interaction-trace.zip" download>Download A11y Interaction Trace v1</a></div></section>
     </main>
     <footer class="site-footer">
-      <div class="shell footer-grid">
-        <div>
-          <a class="brand" href="/"
-            ><img src="/trace-mark.svg" alt="" width="36" height="36" /><span
-              >A11Y INTERACTION TRACE</span
-            ></a
-          >
-          <p class="disclosure">
-            Free and local-first. Hero artwork was generated for this product
-            with the Param Factory image model; interface marks and diagrams are
-            original authored assets.
-          </p>
-        </div>
-        <nav class="footer-links" aria-label="Legal">
-          <a href="/privacy/">Privacy</a><a href="/terms/">Terms</a
-          ><a href="https://github.com/B-Divyesh/sf-a11y-interaction-trace"
-            >Source</a
-          >
-        </nav>
-      </div>
+      <div class="shell footer-grid"><div><a class="brand" href="/" aria-label="A11y Interaction Trace home"><img src="/trace-mark.svg" alt="" width="36" height="36" /><span>A11Y INTERACTION TRACE</span></a><p class="disclosure">Record keyboard actions and focus changes for an accessibility bug report. Version 1.0.0 · Built by Param Factory.</p><p class="disclosure">The hero artwork is original generated imagery. Interface marks and diagrams are hand-authored for this product.</p></div><nav class="footer-links" aria-label="Footer"><a href="/?demo=1">Demo</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="https://github.com/B-Divyesh/sf-a11y-interaction-trace">Source (external)</a></nav></div>
     </footer>
     <script type="module" src="/main.ts"></script>
   </body>
