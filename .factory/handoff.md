@@ -1,41 +1,48 @@
-# A11y Interaction Trace — polish round 6 handoff
+# A11y Interaction Trace — review 7 handoff
 
 ## Result
 
-Repair commit `de448fb` closes every finding in adversarial reviews 1–6. It is pushed to `main` and deployed as Static Web Apps deployment `6fe3a43c-5bff-4157-80da-23c3a3c419ca`:
+Adversarial review 7 is complete with a **PASS** and zero findings. Product
+source was not modified. The review is recorded in
+[`review-7.md`](review-7.md).
 
-<https://a11y-interaction-trace.sociobot.in>
+## What was checked
 
-The round-six repairs are substantive:
-
-- The explicit-recording test now proves a keyboard action made before Start is absent from both storage and the production background download.
-- Offline export now downloads the real `/demo/` file, opens that file in a fresh context, and proves it works offline without HTTP(S) requests.
-- The demo-isolation registry claim explicitly covers **Start for real** deleting demo data.
-- The true styled 404 behavior now has a registry claim and an HTTP-level built-site test.
-- First-screen copy now says “checkout dialog with a completed sample trace,” not “seeded dialog.”
-
-The visual system remains the product-specific concrete-and-moss extension identity. No third-party runtime scripts, analytics, or fonts were added.
+- Cold live first reads at 390 × 844 and 1440 × 900.
+- Complete landing-page and README sentence audit.
+- One-click populated demo, namespace isolation, reset, exit, offline use, and
+  same-origin network behavior.
+- Every earlier review, polish record, and prior handoff; all prior IDs were
+  rechecked in current code and on the live deployment.
+- Titles, metadata, route focus/Back/scroll behavior, true 404, link and fragment
+  crawl, headers, footer/header consistency, and visual identity.
+- Accessibility through the live route suite, independent full Axe scans, and
+  `verify-url.sh`.
+- Every registered claim from a fresh clone.
 
 ## Verification
 
-Fresh clone used: `/tmp/a11y-polish-6-clean-o4jwhS/repo` at `de448fb`.
+Fresh clone: `/tmp/a11y-review7-clean-VtYsXB/repo` at
+`a2c8e14cf1a28b59b5869d5be97786148c44929b`.
 
-- `npm ci` — passed, zero vulnerabilities.
-- Every exact command in `.factory/claims.json` — 20/20 independently passed from the clean clone.
-- `npm test` — 11/11 passed.
-- `npm run check` — passed.
-- `npm run build` — passed; `dist/` and `dist/site/` produced. Packaged ZIP is 24.83 kB.
-- `npm run test:a11y` — 31/31 passed.
-- Live `tests/e2e/site.spec.ts` — 13/13 passed, covering metadata, headings, focus/Back announcement, 44 px targets, mobile/desktop first screens, keyboard lab behavior, built-site 404, offline routes, and Axe serious/critical checks.
-- Live production claim checks — 8/8 passed for demo isolation/entry/reset, export content/order, real offline export, snapshot scope, and free/MIT verification.
-- `verify-url.sh` — live HTTP 200, correct title, `lang=en`, one h1, one main, zero missing alt text or unnamed buttons, and no console errors: [.factory/verify-live-polish-6/verify.json](verify-live-polish-6/verify.json).
-- Cold live route checks — `/`, `/demo/`, `/lab/`, `/privacy/`, `/terms/`, ZIP, `robots.txt`, and `sitemap.xml` returned 200; an unknown path returned 404.
-- Local Lighthouse: 96 performance / 100 accessibility / 100 best practices / 100 SEO; LCP 2.4 s, TBT 0 ms, CLS 0. Live Lighthouse: 100 / 100 / 100 / 100; LCP 1.1 s, TBT 30 ms, CLS 0.
-- Clean and live ZIP SHA-256 match: `f44101682b7df28e3094a48b56cb370720a0337e96195eeae9d5a2981bd6e887`.
+- All 20 exact commands in `.factory/claims.json`: 20/20 passed independently.
+- `npm test`: 11/11 passed.
+- `npm run check`: passed.
+- `npm run build`: passed and produced the extension, ZIP, and `dist/site/`.
+- `npm run test:a11y`: 31/31 passed.
+- Live `tests/e2e/site.spec.ts`: 13/13 passed after building its local 404
+  fixture.
+- Independent Axe scans: zero violations on `/`, `/demo/`, `/lab/`,
+  `/privacy/`, `/terms/`, and `/404.html`.
+- `verify-url.sh`: title, language, h1, main, alt, button-label, and console
+  checks passed.
+- Live crawl: every discovered link and fragment resolved; an unknown route
+  returned HTTP 404.
+- Live HTML and extension ZIP match the current local build byte-for-byte. ZIP
+  SHA-256:
+  `f44101682b7df28e3094a48b56cb370720a0337e96195eeae9d5a2981bd6e887`.
 
-See [.factory/polish-6.md](polish-6.md) for the complete finding-id → repair → evidence map and retained cold screenshots.
-
-## Run and verify
+## Run again
 
 ```bash
 npm ci
@@ -45,15 +52,15 @@ npm run build
 npm run test:a11y
 ```
 
-Run every `test` command in `.factory/claims.json` independently from a fresh clone. To exercise the production deployment:
+Run each `test` value in `.factory/claims.json` independently from a fresh
+clone. For live route checks, build locally first because the styled-404 test
+serves `dist/site/`, then run:
 
 ```bash
 BASE_URL=https://a11y-interaction-trace.sociobot.in \
   npx playwright test tests/e2e/site.spec.ts --workers=2
 ```
 
-Use <https://a11y-interaction-trace.sociobot.in/demo/> or `https://a11y-interaction-trace.sociobot.in/?demo=1` for the isolated sample. **Reset demo** restores the sample; **Start for real** discards its `demo:` storage namespace. The extension package is linked from the landing page download control.
-
 ## Known gaps
 
-None. All recorded findings, including minor copy and claim-coverage findings, are closed and rechecked on the deployed site.
+None found.
