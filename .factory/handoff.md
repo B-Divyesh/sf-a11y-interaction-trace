@@ -1,37 +1,41 @@
-# A11y Interaction Trace — review round 6 handoff
+# A11y Interaction Trace — polish round 6 handoff
 
 ## Result
 
-Adversarial review 6 is complete with a **FAIL** verdict. No product code was modified. The full report is `.factory/review-6.md`.
+Repair commit `de448fb` closes every finding in adversarial reviews 1–6. It is pushed to `main` and deployed as Static Web Apps deployment `6fe3a43c-5bff-4157-80da-23c3a3c419ca`:
 
-Five findings remain:
+<https://a11y-interaction-trace.sociobot.in>
 
-- `F-6-1 / UC-05` — `explicit-recording` does not prove that a pre-start action stays out of storage/export.
-- `F-6-2 / UC-12` — `offline-export` injects generated HTML instead of opening the actual downloaded demo trace.
-- `F-6-3` — the README promise that Start for real removes all demo data is exercised but not stated by a claims entry.
-- `F-6-4` — the README's styled-404 promise has no claims entry.
-- `F-6-5` — “seeded dialog” is avoidable first-screen testing jargon.
+The round-six repairs are substantive:
 
-The current live behavior itself is clear and functional: both first screens pass, the one-click demo is populated and isolated, all five routes work offline after a visit, routing/accessibility checks pass, and the actual downloaded sample trace opens offline.
+- The explicit-recording test now proves a keyboard action made before Start is absent from both storage and the production background download.
+- Offline export now downloads the real `/demo/` file, opens that file in a fresh context, and proves it works offline without HTTP(S) requests.
+- The demo-isolation registry claim explicitly covers **Start for real** deleting demo data.
+- The true styled 404 behavior now has a registry claim and an HTTP-level built-site test.
+- First-screen copy now says “checkout dialog with a completed sample trace,” not “seeded dialog.”
 
-## Verification performed
+The visual system remains the product-specific concrete-and-moss extension identity. No third-party runtime scripts, analytics, or fonts were added.
 
-Clean clone: `/tmp/a11y-review6-clean-h4DMvA/repo` at `d04c244b9fddf3a8c36cbf6f1d7b9b57edfdc5fe`.
+## Verification
 
-- `npm ci` — passed; zero vulnerabilities.
-- Every exact command in `.factory/claims.json` — 19/19 command passes.
+Fresh clone used: `/tmp/a11y-polish-6-clean-o4jwhS/repo` at `de448fb`.
+
+- `npm ci` — passed, zero vulnerabilities.
+- Every exact command in `.factory/claims.json` — 20/20 independently passed from the clean clone.
 - `npm test` — 11/11 passed.
 - `npm run check` — passed.
-- `npm run build` — passed; unpacked extension, 24.83 kB ZIP, and `dist/site` produced.
+- `npm run build` — passed; `dist/` and `dist/site/` produced. Packaged ZIP is 24.83 kB.
 - `npm run test:a11y` — 31/31 passed.
-- Deployed `tests/e2e/site.spec.ts` — 13/13 passed, including six Axe scans, route focus/Back, mobile targets, first-screen bounds, 404, and offline route/demo behavior.
-- `verify-url.sh` — HTTP 200; title, `lang=en`, one h1, one main, alt/button labels, and console checks passed.
-- Live crawl — 15/15 document, hash, download, and external-source targets resolved; an unknown route returned HTTP 404.
-- Demo replay/reset/exit changed only the demo-prefixed key; two real-data sentinels remained unchanged; requests were same-origin only.
-- The downloaded sample trace opened from disk offline with expected content and no HTTP(S) request.
-- Clean and deployed HTML/ZIP hashes match. ZIP SHA-256: `f44101682b7df28e3094a48b56cb370720a0337e96195eeae9d5a2981bd6e887`.
+- Live `tests/e2e/site.spec.ts` — 13/13 passed, covering metadata, headings, focus/Back announcement, 44 px targets, mobile/desktop first screens, keyboard lab behavior, built-site 404, offline routes, and Axe serious/critical checks.
+- Live production claim checks — 8/8 passed for demo isolation/entry/reset, export content/order, real offline export, snapshot scope, and free/MIT verification.
+- `verify-url.sh` — live HTTP 200, correct title, `lang=en`, one h1, one main, zero missing alt text or unnamed buttons, and no console errors: [.factory/verify-live-polish-6/verify.json](verify-live-polish-6/verify.json).
+- Cold live route checks — `/`, `/demo/`, `/lab/`, `/privacy/`, `/terms/`, ZIP, `robots.txt`, and `sitemap.xml` returned 200; an unknown path returned 404.
+- Local Lighthouse: 96 performance / 100 accessibility / 100 best practices / 100 SEO; LCP 2.4 s, TBT 0 ms, CLS 0. Live Lighthouse: 100 / 100 / 100 / 100; LCP 1.1 s, TBT 30 ms, CLS 0.
+- Clean and live ZIP SHA-256 match: `f44101682b7df28e3094a48b56cb370720a0337e96195eeae9d5a2981bd6e887`.
 
-## How to reproduce
+See [.factory/polish-6.md](polish-6.md) for the complete finding-id → repair → evidence map and retained cold screenshots.
+
+## Run and verify
 
 ```bash
 npm ci
@@ -39,11 +43,17 @@ npm test
 npm run check
 npm run build
 npm run test:a11y
-BASE_URL=https://a11y-interaction-trace.sociobot.in npx playwright test tests/e2e/site.spec.ts
 ```
 
-Run each `test` command in `.factory/claims.json` independently from a clean clone. Review assertion coverage, not only exit status; F-6-1 and F-6-2 describe the concealed gaps.
+Run every `test` command in `.factory/claims.json` independently from a fresh clone. To exercise the production deployment:
 
-## Next steps
+```bash
+BASE_URL=https://a11y-interaction-trace.sociobot.in \
+  npx playwright test tests/e2e/site.spec.ts --workers=2
+```
 
-Repair the five findings in severity order, rerun every registered claim from a clean clone, then repeat the cold mobile/desktop, demo isolation, offline, routing, link, accessibility, and history checks. Deployment remains outside this repository.
+Use <https://a11y-interaction-trace.sociobot.in/demo/> or `https://a11y-interaction-trace.sociobot.in/?demo=1` for the isolated sample. **Reset demo** restores the sample; **Start for real** discards its `demo:` storage namespace. The extension package is linked from the landing page download control.
+
+## Known gaps
+
+None. All recorded findings, including minor copy and claim-coverage findings, are closed and rechecked on the deployed site.

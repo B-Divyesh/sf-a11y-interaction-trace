@@ -1,0 +1,14 @@
+{
+  "url": "https://a11y-interaction-trace.sociobot.in",
+  "loadMs": 564,
+  "errors": [],
+  "a11y": {
+    "title": "A11y Interaction Trace — record keyboard focus bugs",
+    "lang": "en",
+    "h1": 1,
+    "main": true,
+    "imgsMissingAlt": 0,
+    "buttonsUnlabeled": 0,
+    "textLength": 2618
+  }
+}
