@@ -1,28 +1,66 @@
-# A11y Interaction Trace — review 1 handoff
+# A11y Interaction Trace — polish round 1 handoff
 
-## Result: **FAIL**
+## Result
 
-The adversarial first-read review is in [`review-1.md`](review-1.md). It covers
-the live deployment and repository base
-`bbcc27187318377310450a1d91940c53d157ef2b` on 2026-08-28 UTC.
+All blocking, high, medium, minor, unlisted-claim, and copy findings in `.factory/review-1.md` are resolved. No earlier `.factory/review-*.md` or `.factory/polish-*.md` existed beyond that report when work began.
 
-## What was done
+Implementation commit `614c868f` was pushed to `origin/main`. Deployment `9bf19820-b4c5-46f9-b860-1a8bf6e99fdd` succeeded through `/opt/fleet/lib/deploy-static.sh a11y-interaction-trace dist/site`.
 
-- Captured cold 390 × 844 and 1440 × 900 first screens before scrolling.
-- Audited every landing-page and README sentence/content unit with word counts,
-  terminology, jargon, headings, and action-label checks.
-- Exercised the closest live trial path (`/lab/`), direct `/demo`, and
-  `/?demo=1`; checked demo controls and a seeded real-storage sentinel.
-- Confirmed `.factory/claims.json` and `@claim:*` tests are absent, then listed
-  every landing/README claim that needs a test or removal.
-- Captured live requests through landing/lab interaction and an offline reload.
-- Checked titles, headings, metadata, unknown routes, deep links, Back/focus,
-  every linked target, headers, mobile touch targets, reduced motion, console,
-  and the distinct visual system.
+Live site: <https://a11y-interaction-trace.sociobot.in>
 
-## Verification run
+## Delivered
 
-From a clean clone of the base commit:
+- Rewrote the first screen around the job, named audience, one-click sample, adjacent outcome, and three tested facts. Mobile puts copy and actions before artwork.
+- Added isolated `?demo=1` → `/demo/` sample flow with four realistic events, persistent banner, replay, reset, start-for-real exit, trace download, and `demo:a11y-interaction-trace:` storage.
+- Added `.factory/claims.json` with 17 unique claim IDs and one exact tagged test for each.
+- Added real route titles and metadata, social/touch assets, canonical links, focus announcements, consistent navigation/footer, 44 px targets, sitemap entry, and a styled HTTP 404.
+- Standardized product terms and rewrote every flagged landing/README phrase. `.factory/copy-audit.md` contains the sentence counts and terminology table.
+- Strengthened extension tests to inspect actual browser-extension storage, badge and recorder controls, typed-key replacement, four sensitive field types, screenshot pixels, visible/background tab isolation, capture cap, clearing, and remote requests.
+- Preserved and extended the concrete-and-moss visual system; new demo and 404 treatments are recorded in `.factory/design.md`.
+
+The complete finding map is in `.factory/polish-1.md`.
+
+## Verification evidence
+
+From the working tree:
+
+```text
+npm test           8 passed
+npm run check      passed
+npm run build      passed; 41.62 kB extension, 24.77 kB ZIP
+npm run test:a11y  27 passed
+npm audit --omit=dev  0 vulnerabilities
+```
+
+From clean clone `/tmp/a11y-polish-clean-qRiwsx/repo`, all 17 commands listed in `.factory/claims.json` passed independently. Each command rebuilt the production artifacts before its one tagged test.
+
+Production checks after deployment:
+
+```text
+live selected Playwright/axe/demo/offline suite  16 passed
+/                                                    200
+/demo/                                               200
+/?demo=1                                             200, then client entry to /demo/
+/lab/                                                200
+/privacy/                                            200
+/terms/                                              200
+/downloads/a11y-interaction-trace.zip                200 application/zip
+/definitely-not-a-route                              404 text/html
+GitHub source link                                   200
+```
+
+`verify-url.sh` reports the correct title, `lang=en`, one h1, a main landmark, zero missing alt attributes, zero unlabeled buttons, and zero console errors. See `.factory/verify-live/verify.json`.
+
+Live Lighthouse mobile scores are performance 100, accessibility 100, best practices 100, and SEO 100. LCP is 1.1 s, TBT is 0 ms, and CLS is 0. See `.factory/lighthouse-live-summary.json`.
+
+Visual evidence:
+
+- `.factory/evidence-live-home-mobile.png`
+- `.factory/evidence-live-demo-mobile.png`
+- `.factory/evidence-live-404-mobile.png`
+- `.factory/verify-live/screenshot-desktop.png`
+
+## How to verify
 
 ```bash
 npm ci
@@ -32,21 +70,8 @@ npm run build
 npm run test:a11y
 ```
 
-All commands passed: 7 unit tests and 7 Playwright/axe tests. The live
-`verify-url.sh` check passed, live axe scans found zero violations on the four
-real routes, the link crawl found no dead links, and the visited landing page
-reloaded offline. These passes do not satisfy the missing claims/demo contract.
+Then run each `test` command in `.factory/claims.json`. For production, set `BASE_URL=https://a11y-interaction-trace.sociobot.in` and run the site/demo subset described in `.factory/polish-1.md`.
 
-## Blocking gaps
+## Known gaps and next steps
 
-1. The first screen does not name its intended user; at 390 px the main action
-   is clipped and the three facts are below the fold.
-2. There is no one-click sample-data demo, demo banner, reset, real-data exit,
-   isolated namespace, or `.factory/demo.md`.
-3. `.factory/claims.json` and all required one-to-one claim tests are missing.
-4. Unknown routes return HTTP 200 with the home page instead of a designed 404.
-
-Additional metadata, route-focus, touch-target, footer consistency, copy, and
-README gaps are specified with concrete fixes in the review.
-
-No product code was modified. Only this handoff and the review report changed.
+None for the reviewed scope. Infrastructure, DNS, and billing were not modified outside the authorized static deployment workflow.

@@ -1,0 +1,16 @@
+{
+  "url": "https://a11y-interaction-trace.sociobot.in/",
+  "runAt": "2026-08-28T11:10:00Z",
+  "scores": {
+    "performance": 100,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100
+  },
+  "metrics": {
+    "firstContentfulPaint": "0.9 s",
+    "largestContentfulPaint": "1.1 s",
+    "totalBlockingTime": "0 ms",
+    "cumulativeLayoutShift": "0"
+  }
+}
