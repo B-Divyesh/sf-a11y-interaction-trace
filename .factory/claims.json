@@ -1,10 +1,10 @@
 [
   {
     "id": "demo-isolation",
-    "claim": "The sample uses a demo-only storage namespace; reset and exit do not change real data.",
-    "where": "landing action, demo banner, README, demo.md",
+    "claim": "The sample uses a demo-only storage namespace; Start for real removes demo data, and reset or exit does not change real data.",
+    "where": "landing action, demo banner and exit, README, demo.md",
     "test": "npm run test:claims -- --grep @claim:demo-isolation",
-    "sandbox": "fresh browser context; seed real sentinels, enter ?demo=1, replay, reset, and compare all non-demo keys"
+    "sandbox": "fresh browser context; seed real sentinels, enter ?demo=1, replay, reset, exit with Start for real, assert the demo key is removed, and compare all non-demo keys"
   },
   {
     "id": "demo-entry",
@@ -74,7 +74,7 @@
     "claim": "Exported trace files open without a network connection.",
     "where": "landing, demo, exported file, README",
     "test": "npm run test:claims -- --grep @claim:offline-export",
-    "sandbox": "fresh offline browser context; render generated trace and assert fields with zero requests"
+    "sandbox": "fresh demo; download the production sample trace, open that saved file in a fresh offline browser context, and assert representative fields with zero HTTP(S) requests"
   },
   {
     "id": "offline-site",
@@ -131,5 +131,12 @@
     "where": "landing footer, README, design.md",
     "test": "npm run test:claims -- --grep @claim:provenance",
     "sandbox": "clean repository; assert source artwork, prompt record, authored SVG, and provenance section"
+  },
+  {
+    "id": "designed-404",
+    "claim": "An unknown path returns the styled 404 page with a way back to the product.",
+    "where": "README deployment checks and 404 page",
+    "test": "npm run test:claims -- --grep @claim:designed-404",
+    "sandbox": "built-site server; request an unknown document path, assert HTTP 404, title, heading, and a return link that opens the product home page"
   }
 ]

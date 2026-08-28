@@ -1,21 +1,18 @@
-import { readFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { existsSync, statSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { expect, test } from '@playwright/test';
 import { buildViewerHtml } from '../../src/lib/export';
 import type { TraceSession } from '../../src/lib/types';
 import { withExtension } from './extension-harness';
 
-const sample: TraceSession = {
-  schema: 1, id: 'claim', status: 'stopped', startedAt: '2026-08-28T12:00:00.000Z', endedAt: '2026-08-28T12:00:02.180Z',
-  tabId: 1, windowId: 1, url: 'https://shop.example.test/settings/checkout', title: 'Checkout settings',
-  viewport: { width: 1280, height: 720, devicePixelRatio: 1 }, userAgent: 'claim browser', screenshotsEnabled: false,
-  events: [
-    { id: 'start', at: 0, kind: 'start', action: 'Recording started' },
-    { id: 'enter', at: 240, kind: 'keyboard', action: 'Enter', focus: { tag: 'input', role: 'textbox', name: 'Project name', selector: '#project-name', states: ['inside dialog'], focused: true }, snapshot: { scope: '#dialog', nodes: [{ tag: 'input', role: 'textbox', name: 'Project name', selector: '#project-name', states: ['inside dialog'], focused: true }] } },
-    { id: 'shift-tab', at: 1420, kind: 'keyboard', action: 'Shift+Tab', focus: { tag: 'a', role: 'link', name: 'Background help', selector: '#background-help', states: ['outside dialog'], focused: true } },
-    { id: 'escape', at: 2180, kind: 'keyboard', action: 'Escape', focus: { tag: 'button', role: 'button', name: 'Open quick edit', selector: '#open-dialog', states: ['dialog closed'], focused: true } }
-  ]
-};
+function traceFromViewerHtml(html: string): TraceSession {
+  const serialized = html.match(/<script type="application\/json" id="trace-data">([\s\S]*?)<\/script>/)?.[1];
+  if (!serialized) throw new Error('The exported trace file did not include trace-data.');
+  return JSON.parse(serialized) as TraceSession;
+}
 
 test('@claim:demo-isolation demo uses only its namespace and reset preserves real data', async ({ page }) => {
   await page.goto('/');
@@ -104,17 +101,46 @@ test('@claim:chronological-order visible, stored, and downloaded production even
   expect(downloaded).toEqual(visible);
 });
 
-test('@claim:explicit-recording recorder starts only on request and exposes both recording indicators', async () => {
+test('@claim:explicit-recording pre-start actions stay out of stored and exported traces while both recording indicators work', async () => {
   await withExtension(async ({ lab, popup, worker }) => {
     await expect(lab.locator('#__a11y_trace_recorder__')).toHaveCount(0);
     await lab.bringToFront();
+    await lab.locator('#open-dialog').focus();
+    await lab.keyboard.press('ArrowDown');
+    await lab.waitForTimeout(100);
+    expect(await worker.evaluate(() => chrome.storage.local.get('traceSession'))).toEqual({});
+
     await popup.evaluate(() => document.querySelector<HTMLButtonElement>('#start')!.click());
     await expect(lab.locator('#__a11y_trace_recorder__')).toContainText('TRACE REC');
     await expect(lab.locator('#__a11y_trace_recorder__').getByRole('button', { name: 'Stop' })).toBeVisible();
     await expect.poll(() => worker.evaluate(() => chrome.action.getBadgeText({}))).toBe('REC');
+    await lab.locator('#open-dialog').focus();
+    await lab.keyboard.press('Enter');
+    await expect.poll(async () => {
+      const stored = await worker.evaluate(() => chrome.storage.local.get('traceSession')) as { traceSession?: TraceSession };
+      return stored.traceSession?.events.filter(event => event.kind === 'keyboard').map(event => event.action) ?? [];
+    }).toEqual(['Enter']);
     await lab.locator('#__a11y_trace_recorder__').getByRole('button', { name: 'Stop' }).click();
     await expect(lab.locator('#__a11y_trace_recorder__')).toHaveCount(0);
     await expect.poll(() => worker.evaluate(() => chrome.action.getBadgeText({}))).toBe('');
+
+    const stored = await worker.evaluate(() => chrome.storage.local.get('traceSession')) as { traceSession?: TraceSession };
+    expect(stored.traceSession?.events.filter(event => event.kind === 'keyboard').map(event => event.action)).toEqual(['Enter']);
+    expect(JSON.stringify(stored.traceSession)).not.toContain('ArrowDown');
+
+    await popup.evaluate(() => chrome.runtime.sendMessage({ type: 'EXPORT_SESSION' }));
+    let exportUrl = '';
+    await expect.poll(async () => {
+      exportUrl = await worker.evaluate(async () => {
+        const downloads = await chrome.downloads.search({ orderBy: ['-startTime'], limit: 1 });
+        return downloads[0]?.url ?? '';
+      });
+      return exportUrl;
+    }).toMatch(/^data:text\/html;base64,/);
+    const exported = traceFromViewerHtml(Buffer.from(exportUrl.split(',')[1]!, 'base64').toString('utf8'));
+    expect(exported.events.filter(event => event.kind === 'keyboard').map(event => event.action)).toEqual(['Enter']);
+    expect(JSON.stringify(exported)).not.toContain('ArrowDown');
+
     await lab.bringToFront();
     await popup.evaluate(() => document.querySelector<HTMLButtonElement>('#start')!.click());
     await expect(lab.locator('#__a11y_trace_recorder__')).toBeVisible();
@@ -265,15 +291,54 @@ test('@claim:screenshot-boundary screenshots default off and use visible-tab cap
   });
 });
 
-test('@claim:offline-export exported trace renders all fields without any network request', async ({ page, context }) => {
-  const requests: string[] = [];
-  page.on('request', request => requests.push(request.url()));
-  await context.setOffline(true);
-  await page.setContent(buildViewerHtml(sample));
-  await expect(page.getByRole('heading', { name: 'Interaction trace' })).toBeVisible();
-  await expect(page.getByText('Background help')).toBeVisible();
-  await expect(page.locator('.notice')).toContainText('Nearby control snapshot');
-  expect(requests).toEqual([]);
+test('@claim:offline-export downloaded production sample trace opens offline without HTTP(S) requests', async ({ browser }) => {
+  const demoContext = await browser.newContext({ baseURL: process.env.BASE_URL ?? 'http://127.0.0.1:4173' });
+  const demoPage = await demoContext.newPage();
+  try {
+    await demoPage.goto('/demo/');
+    const downloadPromise = demoPage.waitForEvent('download');
+    await demoPage.getByRole('button', { name: 'Download sample trace' }).click();
+    const download = await downloadPromise;
+    const artifactDirectory = await mkdtemp(join(tmpdir(), 'a11y-trace-offline-export-'));
+    try {
+      const downloadedPath = join(artifactDirectory, download.suggestedFilename());
+      await download.saveAs(downloadedPath);
+      expect(existsSync(downloadedPath)).toBe(true);
+
+      const offlineContext = await browser.newContext();
+      try {
+        const offlinePage = await offlineContext.newPage();
+        const httpRequests: string[] = [];
+        const consoleErrors: string[] = [];
+        const pageErrors: string[] = [];
+        offlinePage.on('request', request => {
+          if (/^https?:/i.test(request.url())) httpRequests.push(request.url());
+        });
+        offlinePage.on('console', message => {
+          if (message.type() === 'error') consoleErrors.push(message.text());
+        });
+        offlinePage.on('pageerror', error => pageErrors.push(error.message));
+        await offlinePage.goto(pathToFileURL(downloadedPath).href);
+        // Chromium's CDP offline emulation blocks the initial file:// navigation
+        // itself. The file is opened from disk first in this fresh context, then
+        // the context is made offline before any assertions or interaction.
+        await offlineContext.setOffline(true);
+        await expect(offlinePage).toHaveTitle(/A11y interaction trace — Checkout settings/);
+        await expect(offlinePage.getByRole('heading', { name: 'Interaction trace' })).toBeVisible();
+        await expect(offlinePage.locator('.focus', { hasText: 'Background help' })).toBeVisible();
+        await expect(offlinePage.locator('.notice')).toContainText('Nearby control snapshot');
+        expect(httpRequests).toEqual([]);
+        expect(consoleErrors).toEqual([]);
+        expect(pageErrors).toEqual([]);
+      } finally {
+        await offlineContext.close();
+      }
+    } finally {
+      await rm(artifactDirectory, { recursive: true, force: true });
+    }
+  } finally {
+    await demoContext.close();
+  }
 });
 
 test('@claim:local-no-upload trace remains in extension storage, clears there, and makes no remote request', async ({ page }) => {

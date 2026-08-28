@@ -1,4 +1,4 @@
-# Copy audit — polish round 5
+# Copy audit — polish round 6
 
 Audited 2026-08-28. Counts use whitespace-delimited words, so hyphenated and quoted terms count as one word. All landing-page sentences are 22 words or fewer, and none uses a banned marketing word. The demo entry and reset promises map to `demo-entry` and `demo-reset` claim tests. `tests/copy-audit.test.ts` checks every numeric row in this document.
 
@@ -8,7 +8,7 @@ Audited 2026-08-28. Counts use whitespace-delimited words, so hyphenated and quo
 | --- | ---: | --- |
 | Record keyboard focus failures for your team. | 7 | Pass; job-led headline under nine words. |
 | For web developers and accessibility testers who need reproducible keyboard evidence without uploading a recording. | 15 | Pass; audience and changed situation are explicit. |
-| Opens a seeded dialog and sample trace. | 7 | Pass. |
+| Opens a checkout dialog with a completed sample trace. | 9 | Pass; `demo-entry` claim. |
 | Nothing is saved to your real data. | 7 | Pass. |
 | Free. | 1 | Pass; `free-mit` claim. |
 | Packaged for Chromium browsers. | 4 | Pass; `chromium-package` claim. |
@@ -46,12 +46,12 @@ Primary action: “Try it with sample data.” Secondary action: “Download ext
 
 | Copy | Words | Result |
 | --- | ---: | --- |
-| Opens a seeded dialog and sample trace. | 7 | Pass; `demo-entry` claim. |
+| Opens a checkout dialog with a completed sample trace. | 9 | Pass; `demo-entry` claim. |
 | Nothing is saved to your real data. | 7 | Pass; `demo-isolation` claim. |
 | It shows a checkout dialog and four ordered events without an install. | 12 | Pass; `demo-entry` claim. |
 | Reset demo restores the original four-event sample. | 7 | Pass; `demo-reset` claim. |
 | Start for real removes all demo data. | 7 | Pass; `demo-isolation` claim. |
-| Record keyboard focus failures and export one local trace for bug reports. | 12 | Pass; `trace-export-content` and `local-no-upload` claims. |
+| Record keyboard focus failures and export local traces for bug reports. | 11 | Pass; `trace-export-content` and `local-no-upload` claims. |
 
 Fragments, headings, navigation labels, and button labels were checked separately. No flagged term remains.
 

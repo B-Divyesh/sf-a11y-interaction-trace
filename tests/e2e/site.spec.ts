@@ -1,5 +1,9 @@
 import AxeBuilder from '@axe-core/playwright';
+import { existsSync, statSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
+import { createServer } from 'node:http';
+import type { AddressInfo } from 'node:net';
+import { resolve } from 'node:path';
 import { readFile } from 'node:fs/promises';
 
 const expectedTitles: Record<string, string> = {
@@ -10,6 +14,33 @@ const expectedTitles: Record<string, string> = {
   '/lab/': 'Focus containment lab — A11y Interaction Trace',
   '/404.html': 'Page not found — A11y Interaction Trace'
 };
+
+async function withBuiltSiteServer(run: (origin: string) => Promise<void>) {
+  const siteRoot = resolve('dist/site');
+  const server = createServer((request, response) => {
+    const pathname = new URL(request.url ?? '/', 'http://127.0.0.1').pathname;
+    const relativePath = pathname === '/' ? 'index.html' : pathname.replace(/^\/+/, '');
+    const requested = resolve(siteRoot, relativePath);
+    const isInsideBuild = requested === siteRoot || requested.startsWith(`${siteRoot}/`);
+    const found = isInsideBuild && existsSync(requested) && statSync(requested).isFile();
+    const file = found ? requested : resolve(siteRoot, '404.html');
+    void readFile(file).then(body => {
+      response.statusCode = found ? 200 : 404;
+      response.setHeader('Content-Type', file.endsWith('.html') ? 'text/html; charset=utf-8' : 'application/octet-stream');
+      response.end(body);
+    }).catch(() => {
+      response.statusCode = 500;
+      response.end('Could not read the built site.');
+    });
+  });
+  await new Promise<void>(resolveServer => server.listen(0, '127.0.0.1', resolveServer));
+  const address = server.address() as AddressInfo;
+  try {
+    await run(`http://127.0.0.1:${address.port}`);
+  } finally {
+    await new Promise<void>((resolveServer, rejectServer) => server.close(error => error ? rejectServer(error) : resolveServer()));
+  }
+}
 
 for (const path of ['/', '/demo/', '/privacy/', '/terms/', '/lab/', '/404.html']) {
   test(`${path} has semantic structure and no serious axe findings`, async ({ page }) => {
@@ -74,7 +105,7 @@ test('1440px first screen identifies job, audience, action, outcome, and facts w
     page.getByRole('heading', { level: 1 }),
     page.getByText('For web developers and accessibility testers', { exact: false }),
     page.getByRole('link', { name: 'Try it with sample data' }),
-    page.getByText('Opens a seeded dialog and sample trace.', { exact: false }),
+    page.getByText('Opens a checkout dialog with a completed sample trace.', { exact: false }),
     page.locator('.hero-facts li').last()
   ];
   for (const item of required) {
@@ -96,12 +127,26 @@ test('visible mobile links and buttons provide at least 44px targets', async ({ 
   }
 });
 
-test('static host maps unknown paths to the designed 404 response', async () => {
+test('@claim:designed-404 unknown built-site paths return the styled 404 page and a working return link', async ({ browser }) => {
   const config = JSON.parse(await readFile('public/staticwebapp.config.json', 'utf8')) as { responseOverrides?: { '404'?: { rewrite?: string; statusCode?: number } } };
   expect(config.responseOverrides?.['404']).toEqual({ rewrite: '/404.html', statusCode: 404 });
-  const page404 = await readFile('site/404.html', 'utf8');
-  expect(page404).toContain('<title>Page not found — A11y Interaction Trace</title>');
-  expect(page404).toContain('Return to product');
+  await withBuiltSiteServer(async origin => {
+    const context = await browser.newContext();
+    try {
+      const page = await context.newPage();
+      const response = await page.goto(`${origin}/recording-does-not-exist`);
+      expect(response?.status()).toBe(404);
+      await expect(page).toHaveTitle('Page not found — A11y Interaction Trace');
+      await expect(page.getByRole('heading', { level: 1, name: 'This path has no recorded step.' })).toBeVisible();
+      const returnLink = page.getByRole('link', { name: 'Return to product' });
+      await expect(returnLink).toHaveAttribute('href', '/');
+      await Promise.all([page.waitForNavigation(), returnLink.click()]);
+      await expect(page).toHaveURL(`${origin}/`);
+      await expect(page.getByRole('heading', { level: 1, name: 'Record keyboard focus failures for your team.' })).toBeVisible();
+    } finally {
+      await context.close();
+    }
+  });
 });
 
 test('@claim:offline-site every visited public page and the interactive demo remain available offline', async ({ browser }) => {
