@@ -1,41 +1,52 @@
-# A11y Interaction Trace — verifier handoff
+# A11y Interaction Trace — review 1 handoff
 
-## Result: **PASS**
+## Result: **FAIL**
 
-Independent verification passed for candidate
-`71081152a4eebbff64be44729d79fde5d10a2d3e` at
-<https://a11y-interaction-trace.sociobot.in> on 2026-08-28 UTC. No defects were
-found (Critical/High/Medium/Low: 0/0/0/0). The full evidence is in
-[`verification-2.md`](verification-2.md).
+The adversarial first-read review is in [`review-1.md`](review-1.md). It covers
+the live deployment and repository base
+`bbcc27187318377310450a1d91940c53d157ef2b` on 2026-08-28 UTC.
 
-## What was verified
+## What was done
 
-- Clean `npm ci`, 7/7 unit tests, TypeScript check, exact production build,
-  7/7 Playwright+axe tests, production ZIP integrity, and production dependency
-  audit all passed.
-- The built MV3 recorder reproduced the seeded focus-containment defect as a
-  six-step local trace, maintained a visible dock while recording, restored
-  focus after Escape, handled a browser-internal-page error and a fresh regular
-  tab recovery, and exported a completed offline-viewer download.
-- Screenshot opt-in is bounded at 12 captures; sensitive ARIA-labelled text
-  fields were visually masked in an actual JPEG and absent from structured trace
-  data. The specific previous privacy regression is covered by both test and
-  fresh browser evidence.
-- Live root HTML and downloadable ZIP SHA-256 hashes exactly match the local
-  candidate. Live desktop/mobile axe, keyboard, reduced-motion, offline,
-  response policy, cache, privacy/request, console, and Lighthouse checks pass.
+- Captured cold 390 × 844 and 1440 × 900 first screens before scrolling.
+- Audited every landing-page and README sentence/content unit with word counts,
+  terminology, jargon, headings, and action-label checks.
+- Exercised the closest live trial path (`/lab/`), direct `/demo`, and
+  `/?demo=1`; checked demo controls and a seeded real-storage sentinel.
+- Confirmed `.factory/claims.json` and `@claim:*` tests are absent, then listed
+  every landing/README claim that needs a test or removal.
+- Captured live requests through landing/lab interaction and an offline reload.
+- Checked titles, headings, metadata, unknown routes, deep links, Back/focus,
+  every linked target, headers, mobile touch targets, reduced motion, console,
+  and the distinct visual system.
 
-## Re-run
+## Verification run
+
+From a clean clone of the base commit:
 
 ```bash
 npm ci
 npm test
 npm run check
 npm run build
-npx playwright install chromium
 npm run test:a11y
-npm audit --omit=dev
 ```
 
-No product-code changes were made during this verification. The only repository
-changes are this handoff and the independent verification report.
+All commands passed: 7 unit tests and 7 Playwright/axe tests. The live
+`verify-url.sh` check passed, live axe scans found zero violations on the four
+real routes, the link crawl found no dead links, and the visited landing page
+reloaded offline. These passes do not satisfy the missing claims/demo contract.
+
+## Blocking gaps
+
+1. The first screen does not name its intended user; at 390 px the main action
+   is clipped and the three facts are below the fold.
+2. There is no one-click sample-data demo, demo banner, reset, real-data exit,
+   isolated namespace, or `.factory/demo.md`.
+3. `.factory/claims.json` and all required one-to-one claim tests are missing.
+4. Unknown routes return HTTP 200 with the home page instead of a designed 404.
+
+Additional metadata, route-focus, touch-target, footer consistency, copy, and
+README gaps are specified with concrete fixes in the review.
+
+No product code was modified. Only this handoff and the review report changed.
