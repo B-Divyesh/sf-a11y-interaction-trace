@@ -1,5 +1,6 @@
 import { captureSnapshot, nodeSummary } from '../src/lib/snapshot';
 import { isSensitiveElement, safeKeyLabel } from '../src/lib/privacy';
+import { maskSensitiveFields, unmaskSensitiveFields } from '../src/lib/screenshot-mask';
 import type { RuntimeMessage, TraceEvent } from '../src/lib/types';
 
 export default defineUnlistedScript(() => {
@@ -63,22 +64,6 @@ export default defineUnlistedScript(() => {
       dock = null;
     }
 
-    function maskSensitiveFields() {
-      document.getElementById('__a11y_trace_masks__')?.remove();
-      const layer = document.createElement('div');
-      layer.id = '__a11y_trace_masks__';
-      layer.setAttribute('aria-hidden', 'true');
-      for (const element of document.querySelectorAll('input[type="password"], [data-private], input[autocomplete*="cc-"], input[autocomplete*="password"], input[autocomplete="one-time-code"]')) {
-        const rect = element.getBoundingClientRect();
-        if (!rect.width || !rect.height) continue;
-        const mask = document.createElement('span');
-        Object.assign(mask.style, { position: 'fixed', zIndex: '2147483646', left: `${rect.left}px`, top: `${rect.top}px`, width: `${rect.width}px`, height: `${rect.height}px`, background: '#1b1e1a', color: '#f2f0e8', border: '2px solid #cbef45', font: '700 12px/1 system-ui', display: 'grid', placeItems: 'center' });
-        mask.textContent = 'MASKED';
-        layer.append(mask);
-      }
-      document.documentElement.append(layer);
-    }
-
     document.addEventListener('keydown', event => {
       if (!recording || event.target instanceof Element && event.target.closest('#__a11y_trace_recorder__')) return;
       if (['Shift', 'Control', 'Alt', 'Meta'].includes(event.key)) return;
@@ -111,7 +96,7 @@ export default defineUnlistedScript(() => {
       if (request.type === 'TRACE_START') { start(request.startedAt); sendResponse({ ok: true }); }
       if (request.type === 'TRACE_STOP') { stop(); sendResponse({ ok: true }); }
       if (request.type === 'TRACE_MASK_SENSITIVE') { maskSensitiveFields(); sendResponse({ ok: true }); }
-      if (request.type === 'TRACE_UNMASK_SENSITIVE') { document.getElementById('__a11y_trace_masks__')?.remove(); sendResponse({ ok: true }); }
+      if (request.type === 'TRACE_UNMASK_SENSITIVE') { unmaskSensitiveFields(); sendResponse({ ok: true }); }
       return false;
     });
 

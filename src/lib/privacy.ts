@@ -5,11 +5,26 @@ const SAFE_KEYS = new Set([
   'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12'
 ]);
 
+// This selector is the single definition of a field that must never be shown
+// in a trace screenshot. Keep the metadata classifier and visual masking path
+// together so a newly-recognised sensitive field cannot leak through capture.
+export const SENSITIVE_ELEMENT_SELECTOR = [
+  'input[type="password"]',
+  '[data-private]',
+  '[aria-label*="password" i]',
+  'input[autocomplete*="cc-" i]',
+  'input[autocomplete*="password" i]',
+  'input[autocomplete="one-time-code" i]'
+].join(', ');
+
 export function isSensitiveElement(element: Element | null): boolean {
   if (!(element instanceof HTMLElement)) return false;
-  if (element.matches('input[type="password"], [data-private], [aria-label*="password" i]')) return true;
-  const autocomplete = element.getAttribute('autocomplete')?.toLowerCase() ?? '';
-  return ['cc-number', 'cc-csc', 'current-password', 'new-password', 'one-time-code'].some(value => autocomplete.includes(value));
+  return element.matches(SENSITIVE_ELEMENT_SELECTOR);
+}
+
+export function sensitiveElements(root: ParentNode = document): HTMLElement[] {
+  return Array.from(root.querySelectorAll(SENSITIVE_ELEMENT_SELECTOR))
+    .filter((element): element is HTMLElement => isSensitiveElement(element));
 }
 
 export function safeKeyLabel(event: Pick<KeyboardEvent, 'key' | 'shiftKey' | 'ctrlKey' | 'metaKey' | 'altKey'>, sensitive = false): string {
