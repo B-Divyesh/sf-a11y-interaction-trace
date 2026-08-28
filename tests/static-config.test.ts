@@ -1,5 +1,4 @@
 import { readFileSync } from 'node:fs';
-import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 
 const config = JSON.parse(readFileSync('public/staticwebapp.config.json', 'utf8')) as {
@@ -17,13 +16,11 @@ describe('static deployment response policy', () => {
     expect(config.responseOverrides['404']).toEqual({ rewrite: '/404.html', statusCode: 404 });
   });
 
-  it('allows only the reviewed inline offline-demo fallback', () => {
+  it('keeps executable site scripts external under the self-only CSP', () => {
     const html = readFileSync('site/demo/index.html', 'utf8');
-    const inline = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)]
-      .map(match => match[1] ?? '')
-      .find(source => source.includes('__a11yDemoReady'));
-    expect(inline).toBeTruthy();
-    const hash = createHash('sha256').update(inline!).digest('base64');
-    expect(config.globalHeaders['Content-Security-Policy']).toContain(`'sha256-${hash}'`);
+    const executableInline = [...html.matchAll(/<script(?![^>]*type="application\/json")(?![^>]*src=)[^>]*>([\s\S]*?)<\/script>/g)];
+    expect(executableInline).toEqual([]);
+    expect(config.globalHeaders['Content-Security-Policy']).toContain("script-src 'self'");
+    expect(config.globalHeaders['Content-Security-Policy']).not.toContain('sha256-');
   });
 });

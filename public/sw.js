@@ -1,4 +1,4 @@
-const CACHE = 'a11y-trace-site-v8';
+const CACHE = 'a11y-trace-site-v9';
 const PAGES = ['/', '/demo/', '/privacy/', '/terms/', '/lab/', '/404.html'];
 const SHELL = [...PAGES, '/trace-mark.svg', '/apple-touch-icon.png', '/social-card.jpg', '/assets/trace-slab-720.webp', '/assets/trace-slab.webp'];
 
@@ -41,12 +41,17 @@ self.addEventListener('activate', event => event.waitUntil(Promise.all([
   self.clients.claim()
 ])));
 self.addEventListener('message', event => {
-  if (event.data?.type === 'OFFLINE_READY') event.ports[0]?.postMessage({ cache: CACHE });
+  if (event.data?.type !== 'OFFLINE_READY') return;
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE);
+    const resources = (await cache.keys()).map(request => new URL(request.url).pathname);
+    event.ports[0]?.postMessage({ cache: CACHE, resources });
+  })());
 });
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   event.respondWith((async () => {
-    const cached = await caches.match(event.request, { ignoreSearch: true });
+    const cached = await caches.match(event.request, { ignoreSearch: true, ignoreVary: true });
     if (cached) return cached;
     try {
       const response = await fetch(event.request);

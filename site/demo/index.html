@@ -62,39 +62,5 @@
     </footer>
     <script type="application/json" id="demo-seed">{"schema":1,"id":"demo-checkout-focus-escape","status":"stopped","startedAt":"2026-08-28T12:00:00.000Z","endedAt":"2026-08-28T12:00:02.180Z","tabId":0,"windowId":0,"url":"https://shop.example.test/settings/checkout","title":"Checkout settings","viewport":{"width":1280,"height":720,"devicePixelRatio":1},"userAgent":"A11y Interaction Trace sample","screenshotsEnabled":false,"events":[{"id":"start","at":0,"kind":"start","action":"Recording started"},{"id":"enter","at":240,"kind":"keyboard","action":"Enter","focus":{"tag":"input","role":"textbox","name":"Project name","selector":"#project-name","states":["inside dialog","required:false"],"focused":true},"snapshot":{"scope":"nearby control snapshot of the visible tested page","nodes":[{"tag":"input","role":"textbox","name":"Project name","selector":"#project-name","states":["inside dialog","required:false"],"focused":true}]}},{"id":"shift-tab","at":1420,"kind":"keyboard","action":"Shift+Tab","modifiers":["Shift"],"focus":{"tag":"a","role":"link","name":"Background help","selector":"#background-help","states":["outside dialog","focus escaped"],"focused":true},"snapshot":{"scope":"nearby control snapshot of the visible tested page","nodes":[{"tag":"a","role":"link","name":"Background help","selector":"#background-help","states":["outside dialog","focus escaped"],"focused":true}]}},{"id":"escape","at":2180,"kind":"keyboard","action":"Escape","focus":{"tag":"button","role":"button","name":"Open quick edit","selector":"#open-dialog","states":["dialog closed"],"focused":true},"snapshot":{"scope":"nearby control snapshot of the visible tested page","nodes":[{"tag":"button","role":"button","name":"Open quick edit","selector":"#open-dialog","states":["dialog closed"],"focused":true}]}}]}</script>
     <script type="module" src="/demo/demo.ts"></script>
-    <script>
-      window.addEventListener('load', () => {
-        if (window.__a11yDemoReady) return;
-        const prefix = 'demo:a11y-interaction-trace:';
-        const key = `${prefix}state`;
-        const status = document.querySelector('#demo-status');
-        const seed = () => localStorage.setItem(key, JSON.stringify({ schema: 1, replayCount: 0, trace: JSON.parse(document.querySelector('#demo-seed').textContent) }));
-        const clear = () => {
-          for (let index = localStorage.length - 1; index >= 0; index -= 1) {
-            const item = localStorage.key(index);
-            if (item && item.startsWith(prefix)) localStorage.removeItem(item);
-          }
-        };
-        if (!localStorage.getItem(key)) seed();
-        document.querySelector('#reset-demo').addEventListener('click', () => {
-          clear();
-          seed();
-          document.querySelectorAll('.demo-events .is-replaying').forEach(element => element.classList.remove('is-replaying'));
-          status.textContent = 'Demo reset to the original four events. Real data was not changed.';
-        });
-        document.querySelector('#start-real').addEventListener('click', clear);
-        document.querySelector('#replay-demo').addEventListener('click', async () => {
-          const saved = JSON.parse(localStorage.getItem(key) || '{}');
-          localStorage.setItem(key, JSON.stringify({ ...saved, replayCount: (saved.replayCount || 0) + 1 }));
-          const steps = [...document.querySelectorAll('.demo-events .trace-step')];
-          steps.forEach(step => step.classList.remove('is-replaying'));
-          for (const step of steps) {
-            step.classList.add('is-replaying');
-            if (!matchMedia('(prefers-reduced-motion: reduce)').matches) await new Promise(resolve => setTimeout(resolve, 160));
-          }
-          status.textContent = 'Replay complete. Focus escaped on Shift + Tab and recovered on Escape.';
-        });
-      }, { once: true });
-    </script>
   </body>
 </html>

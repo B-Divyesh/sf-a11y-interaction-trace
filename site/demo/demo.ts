@@ -22,7 +22,6 @@ function clearDemo() {
 }
 
 if (!localStorage.getItem(DEMO_KEY)) seedDemo();
-(window as Window & { __a11yDemoReady?: boolean }).__a11yDemoReady = true;
 
 document.querySelector<HTMLButtonElement>('#reset-demo')!.addEventListener('click', () => {
   clearDemo();

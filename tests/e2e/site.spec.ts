@@ -119,20 +119,26 @@ test('@claim:offline-site every visited public page and the interactive demo rem
     const context = await browser.newContext({ baseURL, viewport: { width: 390, height: 844 } });
     const page = await context.newPage();
     const requests: string[] = [];
+    const runtimeErrors: string[] = [];
     page.on('request', request => requests.push(request.url()));
+    page.on('requestfailed', request => runtimeErrors.push(`${request.url()}: ${request.failure()?.errorText ?? 'request failed'}`));
+    page.on('pageerror', error => runtimeErrors.push(error.message));
 
     await page.goto(route.path);
     await page.evaluate(() => navigator.serviceWorker.ready);
     await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
-    await page.evaluate(() => new Promise<void>((resolve, reject) => {
+    const offlineReady = await page.evaluate(() => new Promise<{ cache: string; resources: string[] }>((resolve, reject) => {
       const channel = new MessageChannel();
       const timeout = window.setTimeout(() => reject(new Error('Service worker did not confirm offline readiness.')), 5000);
-      channel.port1.onmessage = () => {
+      channel.port1.onmessage = event => {
         window.clearTimeout(timeout);
-        resolve();
+        resolve(event.data);
       };
       navigator.serviceWorker.controller!.postMessage({ type: 'OFFLINE_READY' }, [channel.port2]);
     }));
+    const requiredResources = await page.locator('script[src], link[rel="stylesheet"], link[rel="modulepreload"]').evaluateAll(elements => elements.map(element => new URL((element as HTMLScriptElement).src || (element as HTMLLinkElement).href).pathname));
+    expect(offlineReady.cache).toBe('a11y-trace-site-v9');
+    expect(offlineReady.resources).toEqual(expect.arrayContaining([route.path, ...requiredResources]));
     const originalDemoState = route.path === '/demo/'
       ? await page.evaluate(() => localStorage.getItem('demo:a11y-interaction-trace:state'))
       : null;
@@ -140,6 +146,13 @@ test('@claim:offline-site every visited public page and the interactive demo rem
     await context.setOffline(true);
     await page.reload();
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(route.heading);
+    const offlineState = await page.evaluate(async resources => ({
+      controlled: Boolean(navigator.serviceWorker.controller),
+      cacheMatches: await Promise.all(resources.map(async resource => Boolean(await caches.match(resource, { ignoreVary: true })))),
+      fetches: await Promise.all(resources.map(async resource => fetch(resource).then(response => response.ok).catch(() => false)))
+    }), requiredResources);
+    expect(offlineState, `${route.path} lost its service-worker cache`).toEqual({ controlled: true, cacheMatches: requiredResources.map(() => true), fetches: requiredResources.map(() => true) });
+    expect(runtimeErrors, `${route.path} logged an offline runtime error`).toEqual([]);
 
     if (route.path === '/demo/') {
       expect(originalDemoState).toBeTruthy();
