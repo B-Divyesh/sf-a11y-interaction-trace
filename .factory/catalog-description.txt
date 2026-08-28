@@ -1,1 +1,1 @@
-Record keyboard focus failures and export a local trace for your team.
+Record keyboard focus failures and export a local trace for bug reports.

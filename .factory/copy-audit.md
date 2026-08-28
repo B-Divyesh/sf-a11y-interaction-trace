@@ -1,6 +1,6 @@
-# Copy audit — polish round 3
+# Copy audit — polish round 4
 
-Audited 2026-08-28. Counts treat hyphenated terms as one word. All landing-page sentences are 22 words or fewer, and none uses a banned marketing word. The demo entry and reset promises now map to `demo-entry` and `demo-reset` claim tests.
+Audited 2026-08-28. Counts use whitespace-delimited words, so hyphenated and quoted terms count as one word. All landing-page sentences are 22 words or fewer, and none uses a banned marketing word. The demo entry and reset promises map to `demo-entry` and `demo-reset` claim tests. `tests/copy-audit.test.ts` checks every numeric row in this document.
 
 ## First screen
 
@@ -36,9 +36,9 @@ Primary action: “Try it with sample data.” Secondary action: “Download ext
 | Nearby control snapshots are selected DOM details, not an operating-system accessibility tree. | 12 | Pass; `snapshot-scope` claim. |
 | Download and unzip the extension. | 5 | Pass. |
 | Open your browser’s Extensions page and enable Developer mode. | 9 | Pass. |
-| Choose “Load unpacked,” select the extracted folder, then pin the moss-path icon. | 11 | Pass. |
-| Use one local extension to capture an accessibility failure for a bug report. | 12 | Pass. |
-| Record keyboard actions and focus changes for an accessibility bug report. | 10 | Pass. |
+| Choose “Load unpacked,” select the extracted folder, then pin the moss-path icon. | 12 | Pass. |
+| Use one local extension to capture an accessibility failure for a bug report. | 13 | Pass. |
+| Record keyboard actions and focus changes for an accessibility bug report. | 11 | Pass. |
 | The hero artwork is original generated imagery. | 7 | Pass; `provenance` claim. |
 | Interface marks and diagrams are hand-authored for this product. | 9 | Pass; `provenance` claim. |
 
@@ -51,7 +51,7 @@ Primary action: “Try it with sample data.” Secondary action: “Download ext
 | It shows a checkout dialog and four ordered events without an install. | 12 | Pass; `demo-entry` claim. |
 | Reset demo restores the original four-event sample. | 7 | Pass; `demo-reset` claim. |
 | Start for real removes all demo data. | 7 | Pass; `demo-isolation` claim. |
-| Record keyboard focus failures and export a local trace for your team. | 11 | Pass; `trace-export-content` and `local-no-upload` claims. |
+| Record keyboard focus failures and export a local trace for bug reports. | 12 | Pass; `trace-export-content` and `local-no-upload` claims. |
 
 Fragments, headings, navigation labels, and button labels were checked separately. No flagged term remains.
 
