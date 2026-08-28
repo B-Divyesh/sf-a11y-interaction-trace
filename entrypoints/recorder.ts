@@ -92,10 +92,13 @@ export default defineUnlistedScript(() => {
       emit({ kind: 'focus', action: 'Focus changed', focus, snapshot: captureSnapshot(event.target as Element) }, true);
     }, true);
 
-    chrome.runtime.onMessage.addListener((request: { type: string; startedAt?: string }, _sender, sendResponse) => {
+    chrome.runtime.onMessage.addListener((request: RuntimeMessage & { startedAt?: string }, _sender, sendResponse) => {
       if (request.type === 'TRACE_START') { start(request.startedAt); sendResponse({ ok: true }); }
       if (request.type === 'TRACE_STOP') { stop(); sendResponse({ ok: true }); }
-      if (request.type === 'TRACE_MASK_SENSITIVE') { maskSensitiveFields(); sendResponse({ ok: true }); }
+      if (request.type === 'TRACE_MASK_SENSITIVE') {
+        void maskSensitiveFields().then(() => sendResponse({ ok: true })).catch(() => sendResponse({ ok: false }));
+        return true;
+      }
       if (request.type === 'TRACE_UNMASK_SENSITIVE') { unmaskSensitiveFields(); sendResponse({ ok: true }); }
       return false;
     });

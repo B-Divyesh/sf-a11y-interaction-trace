@@ -20,6 +20,6 @@ The trace includes page details, timings, focus roles and names, states, selecto
 
 Demo state uses only the `demo:a11y-interaction-trace:` local-storage prefix. Demo code never reads, writes, or clears keys outside that prefix.
 
-**Reset demo** deletes only prefixed keys and restores the original seed. **Start for real** deletes only prefixed keys before opening installation instructions.
+**Reset demo** deletes only prefixed keys and restores the complete original four-event seed. **Start for real** deletes only prefixed keys before opening installation instructions.
 
-The claim test `@claim:demo-isolation` seeds unrelated real-data sentinels, mutates and resets the demo, then proves both sentinels remain byte-identical.
+The claim test `@claim:demo-entry` clicks the landing action in a regular browser context and proves the populated sample opens without an extension install. `@claim:demo-reset` mutates replay state, resets the demo, and compares the complete stored seed byte-for-byte. `@claim:demo-isolation` seeds unrelated real-data sentinels, mutates and resets the demo, then proves both sentinels remain byte-identical.

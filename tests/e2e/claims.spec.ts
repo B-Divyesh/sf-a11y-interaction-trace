@@ -37,6 +37,29 @@ test('@claim:demo-isolation demo uses only its namespace and reset preserves rea
   expect(Object.keys(afterExit).filter(key => key.startsWith('demo:'))).toEqual([]);
 });
 
+test('@claim:demo-entry the landing action opens a populated checkout sample without an extension install', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Try it with sample data' }).click();
+  await expect(page).toHaveURL(/\/demo\/$/);
+  await expect(page.getByRole('heading', { name: 'Quick edit dialog' })).toBeVisible();
+  await expect(page.getByLabel('Project name')).toHaveValue('Concrete audit');
+  await expect(page.locator('#demo-events h3')).toHaveText(['Recording started', 'Enter', 'Shift + Tab', 'Escape']);
+  expect(await page.evaluate(() => window.chrome?.runtime?.id ?? null)).toBeNull();
+});
+
+test('@claim:demo-reset Reset demo restores the complete original four-event sample', async ({ page }) => {
+  await page.goto('/demo/');
+  const originalSeed = await page.evaluate(() => localStorage.getItem('demo:a11y-interaction-trace:state'));
+  expect(originalSeed).toBeTruthy();
+  await page.getByRole('button', { name: 'Replay sample' }).click();
+  await expect(page.locator('#demo-status')).toContainText('Replay complete');
+  expect(await page.evaluate(() => localStorage.getItem('demo:a11y-interaction-trace:state'))).not.toBe(originalSeed);
+  await page.getByRole('button', { name: 'Reset demo' }).click();
+  await expect(page.locator('#demo-status')).toContainText('Demo reset to the original four events');
+  expect(await page.evaluate(() => localStorage.getItem('demo:a11y-interaction-trace:state'))).toBe(originalSeed);
+  await expect(page.locator('#demo-events h3')).toHaveText(['Recording started', 'Enter', 'Shift + Tab', 'Escape']);
+});
+
 test('@claim:trace-export-content sample export contains actions, focus, page details, and nearby control snapshots', async ({ page }) => {
   await page.goto('/demo/');
   const downloadPromise = page.waitForEvent('download');
@@ -97,7 +120,7 @@ test('@claim:key-privacy stored and exported traces replace typed characters but
   });
 });
 
-test('@claim:sensitive-mask password, payment, one-time-code, and marked fields are absent from the trace and masked in screenshots', async () => {
+test('@claim:sensitive-mask password, payment, one-time-code, and marked fields are absent from the trace and masked in every screenshot', async () => {
   await withExtension(async ({ lab, popup, worker }) => {
     await lab.setViewportSize({ width: 700, height: 700 });
     const labels = ['Password', 'Card number', 'One-time code', 'Private account note'];
@@ -105,6 +128,8 @@ test('@claim:sensitive-mask password, payment, one-time-code, and marked fields 
     const boxes = [];
     for (const label of labels) boxes.push(await lab.getByLabel(label).boundingBox());
     expect(boxes.every(Boolean)).toBe(true);
+    const rects = boxes.filter((box): box is NonNullable<typeof box> => Boolean(box));
+    expect(rects).toHaveLength(labels.length);
     await lab.bringToFront();
     await popup.evaluate(() => chrome.runtime.sendMessage({ type: 'START_SESSION', screenshotsEnabled: true }));
     for (const label of labels) {
@@ -123,9 +148,8 @@ test('@claim:sensitive-mask password, payment, one-time-code, and marked fields 
       'Masked character', 'Masked character', 'Masked character', 'Masked character'
     ]);
     const screenshots = stored.traceSession!.events.filter(event => event.screenshot).map(event => event.screenshot!);
-    for (let index = 0; index < screenshots.length; index += 1) {
-      const box = boxes[index]!;
-      const pixel = await lab.evaluate(async ({ dataUrl, x, y }) => {
+    for (const dataUrl of screenshots) {
+      const pixels = await lab.evaluate(async ({ dataUrl, rects }) => {
         const image = new Image();
         image.src = dataUrl;
         await image.decode();
@@ -134,15 +158,48 @@ test('@claim:sensitive-mask password, payment, one-time-code, and marked fields 
         canvas.height = image.naturalHeight;
         const context = canvas.getContext('2d')!;
         context.drawImage(image, 0, 0);
-        return Array.from(context.getImageData(x, y, 1, 1).data);
-      }, { dataUrl: screenshots[index]!, x: Math.round(box!.x + 8), y: Math.round(box!.y + box!.height / 2) });
-      expect(pixel[0]).toBeLessThan(60);
-      expect(pixel[1]).toBeLessThan(60);
-      expect(pixel[2]).toBeLessThan(60);
+        return rects.map(rect => Array.from(context.getImageData(Math.round(rect.x + 8), Math.round(rect.y + rect.height / 2), 1, 1).data));
+      }, { dataUrl, rects });
+      for (const pixel of pixels) {
+        expect(pixel[0]).toBeLessThan(60);
+        expect(pixel[1]).toBeLessThan(60);
+        expect(pixel[2]).toBeLessThan(60);
+      }
     }
     const html = buildViewerHtml(stored.traceSession!);
     for (const secret of secrets) expect(html).not.toContain(secret);
   }, '/sensitive-fixture/');
+});
+
+test('sensitive screenshot masks stay painted during concurrent capture sessions', async () => {
+  await Promise.all([1, 2].map(() => withExtension(async ({ lab, popup, worker }) => {
+    await lab.setViewportSize({ width: 700, height: 700 });
+    const field = lab.getByLabel('Password');
+    const box = await field.boundingBox();
+    expect(box).not.toBeNull();
+    await lab.bringToFront();
+    await popup.evaluate(() => chrome.runtime.sendMessage({ type: 'START_SESSION', screenshotsEnabled: true }));
+    await field.focus();
+    await lab.keyboard.press('z');
+    await expect.poll(async () => {
+      const stored = await worker.evaluate(() => chrome.storage.local.get('traceSession')) as { traceSession?: TraceSession };
+      return stored.traceSession?.events.find(event => Boolean(event.screenshot))?.screenshot ?? '';
+    }).toMatch(/^data:image\/jpeg;base64,/);
+    const stored = await worker.evaluate(() => chrome.storage.local.get('traceSession')) as { traceSession?: TraceSession };
+    const screenshot = stored.traceSession!.events.find(event => event.screenshot)!.screenshot!;
+    const pixel = await lab.evaluate(async ({ dataUrl, x, y }) => {
+      const image = new Image();
+      image.src = dataUrl;
+      await image.decode();
+      const canvas = document.createElement('canvas');
+      canvas.width = image.naturalWidth;
+      canvas.height = image.naturalHeight;
+      const context = canvas.getContext('2d')!;
+      context.drawImage(image, 0, 0);
+      return Array.from(context.getImageData(x, y, 1, 1).data);
+    }, { dataUrl: screenshot, x: Math.round(box!.x + 8), y: Math.round(box!.y + box!.height / 2) });
+    expect(pixel.slice(0, 3).every(channel => channel < 60)).toBe(true);
+  }, '/sensitive-fixture/')));
 });
 
 test('@claim:screenshot-boundary screenshots default off and use visible-tab capture with a 12-image cap', async () => {

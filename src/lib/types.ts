@@ -52,6 +52,10 @@ export type RuntimeMessage =
   | { type: 'CLEAR_SESSION' }
   | { type: 'EXPORT_SESSION' }
   | { type: 'CONTENT_READY' }
+  | { type: 'TRACE_START'; startedAt?: string }
+  | { type: 'TRACE_STOP' }
+  | { type: 'TRACE_MASK_SENSITIVE' }
+  | { type: 'TRACE_UNMASK_SENSITIVE' }
   | { type: 'TRACE_EVENT'; event: Omit<TraceEvent, 'id' | 'at'>; elapsed: number; requestScreenshot?: boolean }
   | { type: 'CONTENT_META'; url: string; title: string; viewport: TraceSession['viewport']; userAgent: string }
   | { type: 'CONTENT_STOP' };

@@ -11,7 +11,7 @@ For web developers, accessibility testers, QA engineers, and issue triagers. Use
 
 Open the sample link once. It shows a checkout dialog and four ordered events without an install.
 
-The banner identifies demo mode. **Reset demo** restores the original sample, and **Start for real** removes all demo data.
+The banner identifies demo mode. **Reset demo** restores the original four-event sample. **Start for real** removes all demo data.
 
 Demo data uses local-storage keys beginning with `demo:a11y-interaction-trace:`. The demo never reads or changes other storage keys.
 

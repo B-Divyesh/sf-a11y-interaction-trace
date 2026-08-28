@@ -7,9 +7,23 @@
     "sandbox": "fresh browser context; seed real sentinels, enter ?demo=1, replay, reset, and compare all non-demo keys"
   },
   {
+    "id": "demo-entry",
+    "claim": "The sample opens without installing the extension and immediately shows a checkout dialog with four ordered events.",
+    "where": "landing action, demo page metadata, README",
+    "test": "npm run test:claims -- --grep @claim:demo-entry",
+    "sandbox": "fresh regular browser context; click the landing sample action and assert the canonical demo route, checkout dialog, four events, and no extension runtime"
+  },
+  {
+    "id": "demo-reset",
+    "claim": "Reset demo restores the original four-event sample.",
+    "where": "demo banner, README, demo.md",
+    "test": "npm run test:claims -- --grep @claim:demo-reset",
+    "sandbox": "fresh demo; mutate replay state, reset, and compare the complete stored seed with its original value"
+  },
+  {
     "id": "trace-export-content",
     "claim": "The sample exports one HTML trace with keyboard actions, focus, page details, and nearby control snapshots.",
-    "where": "landing, demo export preview, README",
+    "where": "landing, demo export preview, README, catalog description",
     "test": "npm run test:claims -- --grep @claim:trace-export-content",
     "sandbox": "fresh demo; download the generated file and inspect its complete content"
   },
@@ -37,7 +51,7 @@
   {
     "id": "key-privacy",
     "claim": "Typed characters become Character while navigation keys remain identifiable.",
-    "where": "landing, popup, privacy, README",
+    "where": "landing, popup, privacy, README, catalog description",
     "test": "npm run test:claims -- --grep @claim:key-privacy",
     "sandbox": "fixed keyboard sequence through the production key-label function"
   },

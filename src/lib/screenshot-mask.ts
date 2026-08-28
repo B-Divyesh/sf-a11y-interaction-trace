@@ -4,9 +4,11 @@ const MASK_LAYER_ID = '__a11y_trace_masks__';
 
 /**
  * Covers every field recognised by the shared privacy classifier immediately
- * before browser capture. The caller must remove the layer after capture.
+ * before browser capture. It resolves only after two animation frames, so the
+ * compositor has had a chance to paint the complete layer before capture.
+ * The caller must remove the layer after capture has settled.
  */
-export function maskSensitiveFields(documentRoot: Document = document): void {
+export async function maskSensitiveFields(documentRoot: Document = document): Promise<void> {
   documentRoot.getElementById(MASK_LAYER_ID)?.remove();
   const layer = documentRoot.createElement('div');
   layer.id = MASK_LAYER_ID;
@@ -25,6 +27,10 @@ export function maskSensitiveFields(documentRoot: Document = document): void {
     layer.append(mask);
   }
   documentRoot.documentElement.append(layer);
+  const view = documentRoot.defaultView;
+  if (!view) return;
+  await new Promise<void>(resolve => view.requestAnimationFrame(() => resolve()));
+  await new Promise<void>(resolve => view.requestAnimationFrame(() => resolve()));
 }
 
 export function unmaskSensitiveFields(documentRoot: Document = document): void {

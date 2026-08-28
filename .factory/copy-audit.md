@@ -1,6 +1,6 @@
-# Copy audit — polish round 1
+# Copy audit — polish round 3
 
-Audited 2026-08-28. Counts treat hyphenated terms as one word. All landing-page sentences are 22 words or fewer, and none uses a banned marketing word.
+Audited 2026-08-28. Counts treat hyphenated terms as one word. All landing-page sentences are 22 words or fewer, and none uses a banned marketing word. The demo entry and reset promises now map to `demo-entry` and `demo-reset` claim tests.
 
 ## First screen
 
@@ -41,6 +41,17 @@ Primary action: “Try it with sample data.” Secondary action: “Download ext
 | Record keyboard actions and focus changes for an accessibility bug report. | 10 | Pass. |
 | The hero artwork is original generated imagery. | 7 | Pass; `provenance` claim. |
 | Interface marks and diagrams are hand-authored for this product. | 9 | Pass; `provenance` claim. |
+
+## Demo, README, and catalog promises
+
+| Copy | Words | Result |
+| --- | ---: | --- |
+| Opens a seeded dialog and sample trace. | 7 | Pass; `demo-entry` claim. |
+| Nothing is saved to your real data. | 7 | Pass; `demo-isolation` claim. |
+| It shows a checkout dialog and four ordered events without an install. | 12 | Pass; `demo-entry` claim. |
+| Reset demo restores the original four-event sample. | 7 | Pass; `demo-reset` claim. |
+| Start for real removes all demo data. | 7 | Pass; `demo-isolation` claim. |
+| Record keyboard focus failures and export a local trace for your team. | 11 | Pass; `trace-export-content` and `local-no-upload` claims. |
 
 Fragments, headings, navigation labels, and button labels were checked separately. No flagged term remains.
 

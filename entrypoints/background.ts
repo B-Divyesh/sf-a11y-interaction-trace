@@ -45,8 +45,10 @@ function appendEvent(message: Extract<RuntimeMessage, { type: 'TRACE_EVENT' }>, 
     } else if (session.screenshotsEnabled && message.requestScreenshot && Date.now() - lastScreenshotAt > 650) {
       lastScreenshotAt = Date.now();
       try {
+        // The recorder acknowledges only after its complete mask layer has
+        // reached two animation frames. Capturing immediately after that
+        // acknowledgement avoids leaking a field during compositor pressure.
         await chrome.tabs.sendMessage(session.tabId, { type: 'TRACE_MASK_SENSITIVE' });
-        await new Promise(resolve => setTimeout(resolve, 40));
         event.screenshot = await chrome.tabs.captureVisibleTab(session.windowId, { format: 'jpeg', quality: 62 });
       } catch (error) {
         event.screenshotError = error instanceof Error ? error.message : 'Browser permission did not allow capture.';
