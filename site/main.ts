@@ -15,7 +15,9 @@ window.addEventListener('online', updateNetworkState);
 window.addEventListener('offline', updateNetworkState);
 updateNetworkState();
 
-if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => undefined));
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => undefined));
+}
 
 const routeStatus = document.querySelector<HTMLElement>('#route-status') ?? (() => {
   const region = document.createElement('div');

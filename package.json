@@ -12,7 +12,7 @@
     "build": "npm run build:site",
     "test": "vitest run",
     "test:claims": "npm run build && playwright test",
-    "test:a11y": "playwright test",
+    "test:a11y": "npm run build && playwright test",
     "check": "tsc --noEmit"
   },
   "devDependencies": {

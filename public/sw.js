@@ -1,4 +1,4 @@
-const CACHE = 'a11y-trace-site-v3';
+const CACHE = 'a11y-trace-site-v8';
 const PAGES = ['/', '/demo/', '/privacy/', '/terms/', '/lab/', '/404.html'];
 const SHELL = [...PAGES, '/trace-mark.svg', '/apple-touch-icon.png', '/social-card.jpg', '/assets/trace-slab-720.webp', '/assets/trace-slab.webp'];
 
@@ -35,18 +35,27 @@ async function cacheShell() {
   }
 }
 
-self.addEventListener('install', event => event.waitUntil(cacheShell()));
-self.addEventListener('activate', event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key))))));
+self.addEventListener('install', event => event.waitUntil(cacheShell().then(() => self.skipWaiting())));
+self.addEventListener('activate', event => event.waitUntil(Promise.all([
+  caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key)))),
+  self.clients.claim()
+])));
+self.addEventListener('message', event => {
+  if (event.data?.type === 'OFFLINE_READY') event.ports[0]?.postMessage({ cache: CACHE });
+});
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
-  event.respondWith(fetch(event.request).then(response => {
-    const copy = response.clone();
-    caches.open(CACHE).then(cache => cache.put(event.request, copy));
-    return response;
-  }).catch(async () => {
+  event.respondWith((async () => {
     const cached = await caches.match(event.request, { ignoreSearch: true });
     if (cached) return cached;
-    if (event.request.mode === 'navigate') return caches.match('/');
-    return Response.error();
-  }));
+    try {
+      const response = await fetch(event.request);
+      const copy = response.clone();
+      event.waitUntil(caches.open(CACHE).then(cache => cache.put(event.request, copy)));
+      return response;
+    } catch {
+      if (event.request.mode === 'navigate') return caches.match('/');
+      return Response.error();
+    }
+  })());
 });

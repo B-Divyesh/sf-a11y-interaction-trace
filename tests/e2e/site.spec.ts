@@ -104,7 +104,7 @@ test('static host maps unknown paths to the designed 404 response', async () => 
   expect(page404).toContain('Return to product');
 });
 
-test('@claim:offline-site every visited public page and the interactive demo remain available offline', async ({ browser }, testInfo) => {
+test('@claim:offline-site every visited public page and the interactive demo remain available offline', async ({ browser }) => {
   const routes = [
     { path: '/', heading: 'Record keyboard focus failures for your team.' },
     { path: '/demo/', heading: 'See where keyboard focus escaped.' },
@@ -112,7 +112,7 @@ test('@claim:offline-site every visited public page and the interactive demo rem
     { path: '/privacy/', heading: 'Privacy stays on your machine.' },
     { path: '/terms/', heading: 'Use the trace responsibly.' }
   ];
-  const baseURL = String(testInfo.project.use.baseURL);
+  const baseURL = process.env.BASE_URL ?? 'http://127.0.0.1:4174';
   const allowedOrigin = new URL(baseURL).origin;
 
   for (const route of routes) {
@@ -123,6 +123,16 @@ test('@claim:offline-site every visited public page and the interactive demo rem
 
     await page.goto(route.path);
     await page.evaluate(() => navigator.serviceWorker.ready);
+    await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
+    await page.evaluate(() => new Promise<void>((resolve, reject) => {
+      const channel = new MessageChannel();
+      const timeout = window.setTimeout(() => reject(new Error('Service worker did not confirm offline readiness.')), 5000);
+      channel.port1.onmessage = () => {
+        window.clearTimeout(timeout);
+        resolve();
+      };
+      navigator.serviceWorker.controller!.postMessage({ type: 'OFFLINE_READY' }, [channel.port2]);
+    }));
     const originalDemoState = route.path === '/demo/'
       ? await page.evaluate(() => localStorage.getItem('demo:a11y-interaction-trace:state'))
       : null;
