@@ -1,8 +1,8 @@
 # A11y Interaction Trace
 
-This Chromium extension records keyboard actions, focus changes, nearby controls, and optional screenshots. It exports one HTML trace file.
+This Chromium extension records keyboard actions, focus changes, nearby control snapshots, and optional screenshots. It exports one HTML trace file.
 
-For web developers, accessibility testers, QA engineers, and issue triagers. Use it when a screen recording does not show enough.
+For web developers, accessibility testers, QA engineers, and issue triagers. Use it to record keys and focus changes in a bug report.
 
 - Live site: <https://a11y-interaction-trace.sociobot.in>
 - Sample trace: <https://a11y-interaction-trace.sociobot.in/?demo=1>
@@ -85,7 +85,6 @@ After deployment, check `/`, `/demo/`, `/lab/`, `/privacy/`, `/terms/`, and an u
 
 - Version 1 is packaged for Chromium browsers.
 - Nearby control snapshots contain selected DOM details.
-- Browser permissions and page security policies can limit capture.
 - Review each trace file before sharing it.
 
 ## License and visual assets

@@ -6,13 +6,13 @@ const DEMO_PREFIX = 'demo:a11y-interaction-trace:';
 const DEMO_KEY = `${DEMO_PREFIX}state`;
 const status = document.querySelector<HTMLElement>('#demo-status')!;
 
-const focus = (role: string, name: string, selector: string, states: string[] = []) => ({ tag: role === 'link' ? 'a' : 'button', role, name, selector, states, focused: true });
-const snapshot = (focused: ReturnType<typeof focus>) => ({ scope: 'nearby controls within the visible tested page', nodes: [focused] });
+const focus = (tag: string, role: string, name: string, selector: string, states: string[] = []) => ({ tag, role, name, selector, states, focused: true });
+const snapshot = (focused: ReturnType<typeof focus>) => ({ scope: 'nearby control snapshot of the visible tested page', nodes: [focused] });
 
 function sampleSession(): TraceSession {
-  const project = focus('textbox', 'Project name', '#project-name', ['inside dialog', 'required:false']);
-  const background = focus('link', 'Background help', '#background-help', ['outside dialog', 'focus escaped']);
-  const opener = focus('button', 'Open quick edit', '#open-dialog', ['dialog closed']);
+  const project = focus('input', 'textbox', 'Project name', '#project-name', ['inside dialog', 'required:false']);
+  const background = focus('a', 'link', 'Background help', '#background-help', ['outside dialog', 'focus escaped']);
+  const opener = focus('button', 'button', 'Open quick edit', '#open-dialog', ['dialog closed']);
   return {
     schema: 1,
     id: 'demo-checkout-focus-escape',

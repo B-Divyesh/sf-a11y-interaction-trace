@@ -8,7 +8,7 @@
   },
   {
     "id": "trace-export-content",
-    "claim": "The sample exports one HTML trace with keyboard actions, focus, page details, and nearby controls.",
+    "claim": "The sample exports one HTML trace with keyboard actions, focus, page details, and nearby control snapshots.",
     "where": "landing, demo export preview, README",
     "test": "npm run test:claims -- --grep @claim:trace-export-content",
     "sandbox": "fresh demo; download the generated file and inspect its complete content"

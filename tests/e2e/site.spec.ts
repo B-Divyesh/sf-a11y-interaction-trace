@@ -67,6 +67,24 @@ test('390px first screen identifies job, audience, action, and three facts witho
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
 });
 
+test('1440px first screen identifies job, audience, action, outcome, and facts without scrolling', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  const required = [
+    page.getByRole('heading', { level: 1 }),
+    page.getByText('For web developers and accessibility testers', { exact: false }),
+    page.getByRole('link', { name: 'Try it with sample data' }),
+    page.getByText('Opens a seeded dialog and sample trace.', { exact: false }),
+    page.locator('.hero-facts li').last()
+  ];
+  for (const item of required) {
+    await expect(item).toBeVisible();
+    const box = await item.boundingBox();
+    expect(box, 'required first-screen element has a box').not.toBeNull();
+    expect(box!.y + box!.height).toBeLessThanOrEqual(900);
+  }
+});
+
 test('visible mobile links and buttons provide at least 44px targets', async ({ page }) => {
   for (const path of ['/', '/demo/', '/privacy/', '/terms/', '/lab/', '/404.html']) {
     await page.goto(path);

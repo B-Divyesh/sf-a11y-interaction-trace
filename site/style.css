@@ -164,35 +164,35 @@ img {
 }
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(450px, 1.1fr);
+  grid-template-columns: minmax(0, 1.08fr) minmax(420px, 0.92fr);
   align-items: center;
   gap: 48px;
-  padding-block: 80px 96px;
+  padding-block: 56px 64px;
 }
 .hero h1,
 .page-hero h1 {
   font:
-    950 clamp(3.6rem, 8vw, 7.4rem) / 0.82 "Arial Narrow",
+    950 clamp(3rem, 3.9vw, 3.5rem) / 0.9 "Arial Narrow",
     "Roboto Condensed",
     "Franklin Gothic Condensed",
     sans-serif;
   letter-spacing: -0.045em;
   text-transform: uppercase;
-  margin: 22px 0 28px;
-  max-width: 8ch;
+  margin: 18px 0 20px;
+  max-width: 12.5ch;
 }
 .hero-copy {
   min-width: 0;
 }
 .hero .lede {
   font-size: 19px;
-  max-width: 58ch;
+  max-width: 62ch;
 }
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
-  margin-top: 32px;
+  margin-top: 24px;
 }
 .microcopy,
 .action-note {

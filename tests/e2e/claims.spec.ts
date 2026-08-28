@@ -37,7 +37,7 @@ test('@claim:demo-isolation demo uses only its namespace and reset preserves rea
   expect(Object.keys(afterExit).filter(key => key.startsWith('demo:'))).toEqual([]);
 });
 
-test('@claim:trace-export-content sample export contains actions, focus, page details, and nearby controls', async ({ page }) => {
+test('@claim:trace-export-content sample export contains actions, focus, page details, and nearby control snapshots', async ({ page }) => {
   await page.goto('/demo/');
   const downloadPromise = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Download sample trace' }).click();
@@ -220,13 +220,29 @@ test('@claim:local-no-upload trace remains in extension storage, clears there, a
   expect(sources.join('\n')).not.toMatch(/fetch\(|XMLHttpRequest|sendBeacon|analytics|telemetry|oauth|signIn/i);
 });
 
-test('@claim:snapshot-scope UI and export identify selected DOM details without claiming a full accessibility tree', async ({ page }) => {
+test('@claim:snapshot-scope UI and downloaded sample export identify accurate selected DOM details without claiming a full accessibility tree', async ({ page }) => {
   await page.goto('/demo/');
   await expect(page.locator('.scope-note')).toContainText('selected DOM roles, names, states, and focus');
-  const html = buildViewerHtml(sample);
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Download sample trace' }).click();
+  const download = await downloadPromise;
+  const html = await readFile((await download.path())!, 'utf8');
   expect(html).toContain('Nearby control snapshot');
   expect(html).toContain('not the browser or operating system’s accessibility tree');
   expect(html).not.toContain('narrowed semantic snapshot');
+  const serialized = html.match(/<script type="application\/json" id="trace-data">([\s\S]*?)<\/script>/)?.[1];
+  expect(serialized).toBeTruthy();
+  const trace = JSON.parse(serialized!) as TraceSession;
+  expect(trace.events.filter(event => event.focus).map(event => event.focus && ({ tag: event.focus.tag, role: event.focus.role, name: event.focus.name, selector: event.focus.selector }))).toEqual([
+    { tag: 'input', role: 'textbox', name: 'Project name', selector: '#project-name' },
+    { tag: 'a', role: 'link', name: 'Background help', selector: '#background-help' },
+    { tag: 'button', role: 'button', name: 'Open quick edit', selector: '#open-dialog' }
+  ]);
+  expect(trace.events.filter(event => event.snapshot).map(event => event.snapshot!.nodes[0]!).map(node => ({ tag: node.tag, role: node.role, name: node.name, selector: node.selector }))).toEqual([
+    { tag: 'input', role: 'textbox', name: 'Project name', selector: '#project-name' },
+    { tag: 'a', role: 'link', name: 'Background help', selector: '#background-help' },
+    { tag: 'button', role: 'button', name: 'Open quick edit', selector: '#open-dialog' }
+  ]);
 });
 
 test('@claim:manifest-permissions built manifest has only four named permissions and no host permissions', async () => {

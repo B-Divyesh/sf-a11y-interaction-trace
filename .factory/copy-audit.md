@@ -7,7 +7,7 @@ Audited 2026-08-28. Counts treat hyphenated terms as one word. All landing-page 
 | Copy | Words | Result |
 | --- | ---: | --- |
 | Record keyboard focus failures for your team. | 7 | Pass; job-led headline under nine words. |
-| For web developers and accessibility testers who need reproducible keyboard evidence without uploading a recording. | 14 | Pass; audience and changed situation are explicit. |
+| For web developers and accessibility testers who need reproducible keyboard evidence without uploading a recording. | 15 | Pass; audience and changed situation are explicit. |
 | Opens a seeded dialog and sample trace. | 7 | Pass. |
 | Nothing is saved to your real data. | 7 | Pass. |
 | Free. | 1 | Pass; `free-mit` claim. |
@@ -33,7 +33,7 @@ Primary action: “Try it with sample data.” Secondary action: “Download ext
 | The extension stores traces in browser extension storage. | 8 | Pass; `local-no-upload` claim. |
 | The extension has no account, analytics, tracker, or upload service. | 10 | Pass; `local-no-upload` claim. |
 | Exported trace files open without a network connection. | 8 | Pass; `offline-export` claim. |
-| Nearby control snapshots are selected DOM details, not an operating-system accessibility tree. | 11 | Pass; `snapshot-scope` claim. |
+| Nearby control snapshots are selected DOM details, not an operating-system accessibility tree. | 12 | Pass; `snapshot-scope` claim. |
 | Download and unzip the extension. | 5 | Pass. |
 | Open your browser’s Extensions page and enable Developer mode. | 9 | Pass. |
 | Choose “Load unpacked,” select the extracted folder, then pin the moss-path icon. | 11 | Pass. |
