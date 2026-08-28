@@ -1,62 +1,37 @@
-# A11y Interaction Trace — polish round 5 handoff
+# A11y Interaction Trace — review round 6 handoff
 
 ## Result
 
-Round 5 is complete with no known open finding. The repair preserves the WXT + TypeScript MV3 browser extension, static site deployment, and concrete-and-moss visual system.
+Adversarial review 6 is complete with a **FAIL** verdict. No product code was modified. The full report is `.factory/review-6.md`.
 
-The two review-5 blockers are closed:
+Five findings remain:
 
-- `@claim:chronological-order` now compares complete action/timestamp pairs from the rendered demo, demo-namespaced production state, and downloaded production `trace-data`.
-- `@claim:offline-site` now visits `/`, `/demo/`, `/lab/`, `/privacy/`, and `/terms/` once in separate clean contexts, then proves each reloads offline. It also proves the demo replay/reset controls, required modules/CSS, and same-origin request boundary offline.
+- `F-6-1 / UC-05` — `explicit-recording` does not prove that a pre-start action stays out of storage/export.
+- `F-6-2 / UC-12` — `offline-export` injects generated HTML instead of opening the actual downloaded demo trace.
+- `F-6-3` — the README promise that Start for real removes all demo data is exercised but not stated by a claims entry.
+- `F-6-4` — the README's styled-404 promise has no claims entry.
+- `F-6-5` — “seeded dialog” is avoidable first-screen testing jargon.
 
-The full suite exposed a `Vary`-header cache mismatch while this was being repaired. The service worker now uses `ignoreVary` for same-origin precache matches and reports its ready resource inventory. The temporary inline demo duplicate was removed; online and offline flows use the same TypeScript module under `script-src 'self'`.
+The current live behavior itself is clear and functional: both first screens pass, the one-click demo is populated and isolated, all five routes work offline after a visit, routing/accessibility checks pass, and the actual downloaded sample trace opens offline.
 
-The catalog description is: “Record keyboard focus failures and export one local trace for bug reports.” It is verb-first and 74 characters before the newline.
+## Verification performed
 
-## Commits and deployment
+Clean clone: `/tmp/a11y-review6-clean-h4DMvA/repo` at `d04c244b9fddf3a8c36cbf6f1d7b9b57edfdc5fe`.
 
-- Review target: `53af30e402de1d313498864cdf0b7e290f01d38c`
-- Review report: `a61925d5e47fbe1ed88d5fcb8805e2de6d759e4e`
-- Repair commits: `1c3fc97`, `fbeb262`, `b4988a3`, `2697ef6`
-- Production deployment ID: `1de44946-68f3-48c7-bc21-d5a92e265e62`
-- Live URL: <https://a11y-interaction-trace.sociobot.in>
-- Packaged ZIP SHA-256, local and live: `f44101682b7df28e3094a48b56cb370720a0337e96195eeae9d5a2981bd6e887`
-
-## Clean-clone verification
-
-Fresh clone: `/tmp/a11y-polish-5-clean-zFzl4ouL/repo` at `2697ef6`.
-
-- `npm ci` — passed; 235 packages audited, zero vulnerabilities.
-- Every exact command in `.factory/claims.json` — 19/19 passed independently.
+- `npm ci` — passed; zero vulnerabilities.
+- Every exact command in `.factory/claims.json` — 19/19 command passes.
 - `npm test` — 11/11 passed.
 - `npm run check` — passed.
-- `npm run build` — passed; unpacked MV3 extension, 24.83 kB ZIP, and `dist/site` produced.
+- `npm run build` — passed; unpacked extension, 24.83 kB ZIP, and `dist/site` produced.
 - `npm run test:a11y` — 31/31 passed.
-- The offline claim also passed three consecutive repeated runs with two workers.
-- Initial site payload: 2.15 kB main JS, 14.69 kB CSS, and 25.01 kB mobile hero image, all below product budgets.
+- Deployed `tests/e2e/site.spec.ts` — 13/13 passed, including six Axe scans, route focus/Back, mobile targets, first-screen bounds, 404, and offline route/demo behavior.
+- `verify-url.sh` — HTTP 200; title, `lang=en`, one h1, one main, alt/button labels, and console checks passed.
+- Live crawl — 15/15 document, hash, download, and external-source targets resolved; an unknown route returned HTTP 404.
+- Demo replay/reset/exit changed only the demo-prefixed key; two real-data sentinels remained unchanged; requests were same-origin only.
+- The downloaded sample trace opened from disk offline with expected content and no HTTP(S) request.
+- Clean and deployed HTML/ZIP hashes match. ZIP SHA-256: `f44101682b7df28e3094a48b56cb370720a0337e96195eeae9d5a2981bd6e887`.
 
-## Production verification
-
-- Deployed route/Axe/focus/mobile/offline suite — 13/13 passed.
-- Deployed demo/export/order/scope/free claim subset — 8/8 passed.
-- `verify-url.sh` — HTTP 200; correct title; `lang=en`; one h1; one main; zero missing alts; zero unnamed buttons; no console errors.
-- Link crawl — 15/15 live links and hash targets passed.
-- `/`, `/demo/`, `/lab/`, `/privacy/`, `/terms/`, the ZIP, `robots.txt`, and `sitemap.xml` returned 200.
-- `/round-5-cold-missing-route` returned the designed page with HTTP 404.
-- Live headers include self-only CSP, HSTS, Permissions-Policy, Referrer-Policy, and `X-Content-Type-Options`.
-- Local Lighthouse — performance 100, accessibility 100, best practices 100, SEO 100; LCP 1.2 s, TBT 0 ms, CLS 0.
-- Live Lighthouse — performance 100, accessibility 100, best practices 100, SEO 100; LCP 1.1 s, TBT 30 ms, CLS 0.
-
-Cold live screenshots:
-
-- `.factory/evidence-live-polish-5-home-mobile.png`
-- `.factory/evidence-live-polish-5-home-desktop.png`
-- `.factory/evidence-live-polish-5-demo-mobile.png`
-- `.factory/evidence-live-polish-5-not-found-mobile.png`
-
-The full ID-by-ID review mapping is in `.factory/polish-5.md`.
-
-## Run and verify
+## How to reproduce
 
 ```bash
 npm ci
@@ -64,10 +39,11 @@ npm test
 npm run check
 npm run build
 npm run test:a11y
+BASE_URL=https://a11y-interaction-trace.sociobot.in npx playwright test tests/e2e/site.spec.ts
 ```
 
-Run one claim with the exact command recorded for its ID in `.factory/claims.json`. The production deploy root is `dist/site`.
+Run each `test` command in `.factory/claims.json` independently from a clean clone. Review assertion coverage, not only exit status; F-6-1 and F-6-2 describe the concealed gaps.
 
-## Known gaps and next steps
+## Next steps
 
-None identified. No TODO, stub, unresolved review item, deployment task, or follow-up product change remains.
+Repair the five findings in severity order, rerun every registered claim from a clean clone, then repeat the cold mobile/desktop, demo isolation, offline, routing, link, accessibility, and history checks. Deployment remains outside this repository.
