@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { expect, test } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 import { buildViewerHtml } from '../../src/lib/export';
 import type { TraceSession } from '../../src/lib/types';
 import { withExtension } from './extension-harness';
@@ -13,6 +14,31 @@ function traceFromViewerHtml(html: string): TraceSession {
   if (!serialized) throw new Error('The exported trace file did not include trace-data.');
   return JSON.parse(serialized) as TraceSession;
 }
+
+test('installed popup names the recording job and presents verified privacy boundaries', async () => {
+  await withExtension(async ({ popup, worker }) => {
+    await popup.setViewportSize({ width: 380, height: 600 });
+    await expect(popup).toHaveTitle('A11y Interaction Trace — record keyboard focus bugs');
+    await expect.poll(() => worker.evaluate(() => chrome.action.getTitle({}))).toBe('A11y Interaction Trace — record keyboard focus bugs');
+    await expect(popup.locator('main')).toHaveCount(1);
+    await expect(popup.getByRole('heading', { level: 1, name: 'Record keyboard focus changes.' })).toBeVisible();
+    await expect(popup.getByRole('switch', { name: 'Include screenshots Off by default. Captures only the tested tab.' })).not.toBeChecked();
+    await expect(popup.locator('.privacy-note')).toHaveText('Typed characters become “Character.” Sensitive fields are masked in screenshots. Nothing is uploaded. Review each trace before sharing it.');
+
+    const firstAction = popup.getByRole('button', { name: 'Start on this tab' });
+    await firstAction.focus();
+    await expect(firstAction).toBeFocused();
+    const actionBox = await firstAction.boundingBox();
+    expect(actionBox).not.toBeNull();
+    expect(actionBox!.y + actionBox!.height).toBeLessThanOrEqual(600);
+    expect(await popup.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(380);
+    const outline = await firstAction.evaluate(element => getComputedStyle(element).outlineStyle);
+    expect(outline).toBe('solid');
+
+    const results = await new AxeBuilder({ page: popup as never }).analyze();
+    expect(results.violations.filter(item => ['serious', 'critical'].includes(item.impact ?? ''))).toEqual([]);
+  });
+});
 
 test('@claim:demo-isolation demo uses only its namespace and reset preserves real data', async ({ page }) => {
   await page.goto('/');

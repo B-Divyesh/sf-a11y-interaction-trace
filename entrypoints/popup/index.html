@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>A11y Interaction Trace</title>
+    <title>A11y Interaction Trace — record keyboard focus bugs</title>
     <link rel="stylesheet" href="./style.css">
   </head>
   <body>
@@ -13,8 +13,8 @@
       <div><span>A11Y / TRACE</span><small id="mode">READY</small></div>
     </header>
     <main id="main">
-      <h1>Capture the path,<br>not the person.</h1>
-      <p class="intro">Keyboard actions, focus changes, visible UI, and nearby control snapshots. One local trace file.</p>
+      <h1>Record keyboard focus changes.</h1>
+      <p class="intro">Record keyboard actions, focus changes, and nearby control snapshots. Add screenshots when needed, then export one trace file.</p>
 
       <section id="idle" aria-labelledby="idle-title">
         <h2 id="idle-title">New trace</h2>
@@ -22,7 +22,7 @@
           <span><strong>Include screenshots</strong><small>Off by default. Captures only the tested tab.</small></span>
           <input type="checkbox" id="screenshots" role="switch">
         </label>
-        <p class="privacy-note"><strong>Private by design.</strong> Typed characters become “Character”; passwords and sensitive fields are always masked. Nothing is uploaded.</p>
+        <p class="privacy-note">Typed characters become “Character.” Sensitive fields are masked in screenshots. Nothing is uploaded. Review each trace before sharing it.</p>
         <button class="primary" id="start" type="button"><span aria-hidden="true">●</span> Start on this tab</button>
       </section>
 
@@ -35,7 +35,7 @@
 
       <section id="complete" aria-labelledby="complete-title" hidden>
         <h2 id="complete-title">Trace ready</h2>
-        <p id="summary">Your trace is ready to share.</p>
+        <p id="summary">Review the trace, then export it.</p>
         <button class="primary" id="export" type="button">Export trace file</button>
         <button class="secondary" id="clear" type="button">Clear local trace</button>
       </section>

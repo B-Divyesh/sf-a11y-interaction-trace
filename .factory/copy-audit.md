@@ -1,6 +1,6 @@
-# Copy audit — polish round 6
+# Copy audit — repair round 8
 
-Audited 2026-08-28. Counts use whitespace-delimited words, so hyphenated and quoted terms count as one word. All landing-page sentences are 22 words or fewer, and none uses a banned marketing word. The demo entry and reset promises map to `demo-entry` and `demo-reset` claim tests. `tests/copy-audit.test.ts` checks every numeric row in this document.
+Audited 2026-09-06. Counts use whitespace-delimited words, so hyphenated and quoted terms count as one word. All landing-page and popup sentences are 22 words or fewer, and none uses a banned marketing word. The demo entry and reset promises map to `demo-entry` and `demo-reset` claim tests. `tests/copy-audit.test.ts` checks every numeric row in this document. The installed-popup browser test checks the rendered title, job heading, privacy facts, first action, focus treatment, and accessibility tree.
 
 ## First screen
 
@@ -41,6 +41,23 @@ Primary action: “Try it with sample data.” Secondary action: “Download ext
 | Record keyboard actions and focus changes for an accessibility bug report. | 11 | Pass. |
 | The hero artwork is original generated imagery. | 7 | Pass; `provenance` claim. |
 | Interface marks and diagrams are hand-authored for this product. | 9 | Pass; `provenance` claim. |
+
+## Extension popup
+
+| Copy | Words | Result |
+| --- | ---: | --- |
+| Record keyboard focus changes. | 4 | Pass; job-led heading, covered by `explicit-recording` and `trace-export-content`. |
+| Record keyboard actions, focus changes, and nearby control snapshots. | 9 | Pass; `trace-export-content` claim. |
+| Add screenshots when needed, then export one trace file. | 9 | Pass; `screenshot-boundary` and `trace-export-content` claims. |
+| Off by default. | 3 | Pass; `screenshot-boundary` claim. |
+| Captures only the tested tab. | 5 | Pass; `screenshot-boundary` claim. |
+| Typed characters become “Character.” | 4 | Pass; `key-privacy` claim. |
+| Sensitive fields are masked in screenshots. | 6 | Pass; `sensitive-mask` claim. |
+| Nothing is uploaded. | 3 | Pass; `local-no-upload` claim. |
+| Review each trace before sharing it. | 6 | Pass; concrete safety instruction, not a product claim. |
+| Use the page normally. | 4 | Pass; recording instruction. |
+| The in-page recorder stays visible until you stop. | 8 | Pass; `explicit-recording` claim. |
+| Review the trace, then export it. | 6 | Pass; concrete safety instruction. |
 
 ## Demo, README, and catalog promises
 

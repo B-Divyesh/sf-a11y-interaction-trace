@@ -8,7 +8,7 @@ describe('copy audit', () => {
     const audit = readFileSync('.factory/copy-audit.md', 'utf8');
     const rows = [...audit.matchAll(/^\|\s*(.*?)\s*\|\s*(\d+)\s*\|\s*(.*?)\s*\|$/gm)];
 
-    expect(rows).toHaveLength(34);
+    expect(rows).toHaveLength(46);
     for (const row of rows) {
       const copy = row[1] ?? '';
       const statedWords = row[2] ?? '';

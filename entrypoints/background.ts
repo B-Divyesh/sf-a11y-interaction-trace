@@ -22,7 +22,7 @@ function saveSession(session: TraceSession | null): Promise<void> {
 async function setBadge(recording: boolean) {
   await chrome.action.setBadgeText({ text: recording ? 'REC' : '' });
   await chrome.action.setBadgeBackgroundColor({ color: recording ? '#3E631D' : '#5A5F55' });
-  await chrome.action.setTitle({ title: recording ? 'A11y Interaction Trace — recording' : 'A11y Interaction Trace' });
+  await chrome.action.setTitle({ title: recording ? 'A11y Interaction Trace — recording' : 'A11y Interaction Trace — record keyboard focus bugs' });
 }
 
 async function activateRecorder(tabId: number, startedAt: string) {
