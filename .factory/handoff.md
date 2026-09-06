@@ -1,48 +1,45 @@
-# A11y Interaction Trace — review 7 handoff
+# A11y Interaction Trace — review 8 handoff
 
 ## Result
 
-Adversarial review 7 is complete with a **PASS** and zero findings. Product
-source was not modified. The review is recorded in
-[`review-7.md`](review-7.md).
+Review 8 is complete with a **FAIL**: one medium finding and one untested
+public claim. Product code was not modified. The report is
+[`review-8.md`](review-8.md).
 
-## What was checked
+Implementation candidate:
+`de448fb7f0a9891079c2e1abecb34b33f4dedd5c`. Documentation SHA reviewed:
+`954036a05c4918d39f602e209e22eb753d340a88`.
 
-- Cold live first reads at 390 × 844 and 1440 × 900.
-- Complete landing-page and README sentence audit.
-- One-click populated demo, namespace isolation, reset, exit, offline use, and
-  same-origin network behavior.
-- Every earlier review, polish record, and prior handoff; all prior IDs were
-  rechecked in current code and on the live deployment.
-- Titles, metadata, route focus/Back/scroll behavior, true 404, link and fragment
-  crawl, headers, footer/header consistency, and visual identity.
-- Accessibility through the live route suite, independent full Axe scans, and
-  `verify-url.sh`.
-- Every registered claim from a fresh clone.
+## Finding to fix
 
-## Verification
+The installed popup uses the product-name-only title “A11y Interaction Trace”
+and the metaphorical heading “Capture the path, not the person.” The heading
+also reads as a broad privacy promise, but it has no claims entry or test.
+Replace it with a job-naming title and heading, remove “Private by design,” and
+retain only the concrete tested privacy statements. Add the popup copy to the
+copy/claims audit.
 
-Fresh clone: `/tmp/a11y-review7-clean-VtYsXB/repo` at
-`a2c8e14cf1a28b59b5869d5be97786148c44929b`.
+## Verification completed
 
-- All 20 exact commands in `.factory/claims.json`: 20/20 passed independently.
+- All 20 exact claim commands passed independently from a fresh clone.
 - `npm test`: 11/11 passed.
 - `npm run check`: passed.
 - `npm run build`: passed and produced the extension, ZIP, and `dist/site/`.
 - `npm run test:a11y`: 31/31 passed.
-- Live `tests/e2e/site.spec.ts`: 13/13 passed after building its local 404
-  fixture.
-- Independent Axe scans: zero violations on `/`, `/demo/`, `/lab/`,
-  `/privacy/`, `/terms/`, and `/404.html`.
-- `verify-url.sh`: title, language, h1, main, alt, button-label, and console
-  checks passed.
-- Live crawl: every discovered link and fragment resolved; an unknown route
-  returned HTTP 404.
-- Live HTML and extension ZIP match the current local build byte-for-byte. ZIP
-  SHA-256:
+- Live route suite: 13/13 passed.
+- Independent Axe: zero violations on all six site pages and the popup.
+- Live verifier: correct title, language, h1, main, image text alternatives,
+  button names, and no console errors.
+- Demo replay/reset/exit preserved real-data sentinels and made only
+  same-origin requests.
+- Invalid start, empty export, normal recovery, screenshot cap, sensitive
+  masking, and browser-restart persistence were exercised.
+- Every served product file matched the clean build byte-for-byte. ZIP SHA-256:
   `f44101682b7df28e3094a48b56cb370720a0337e96195eeae9d5a2981bd6e887`.
+- Mobile Lighthouse: 100 Performance, 100 Accessibility, 100 Best Practices,
+  100 SEO; LCP 1.1 s, TBT 20 ms, CLS 0.
 
-## Run again
+## Run after repair
 
 ```bash
 npm ci
@@ -52,15 +49,14 @@ npm run build
 npm run test:a11y
 ```
 
-Run each `test` value in `.factory/claims.json` independently from a fresh
-clone. For live route checks, build locally first because the styled-404 test
-serves `dist/site/`, then run:
+Run every `test` command in `.factory/claims.json` independently. Then build
+and check the live routes with:
 
 ```bash
 BASE_URL=https://a11y-interaction-trace.sociobot.in \
   npx playwright test tests/e2e/site.spec.ts --workers=2
 ```
 
-## Known gaps
+## Product-code changes
 
-None found.
+None. Only this handoff and the review report were changed.
